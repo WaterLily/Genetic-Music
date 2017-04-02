@@ -1,8 +1,5 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Model {
     
     static class MelodyBase {
@@ -32,13 +29,15 @@ public class Model {
     }
     
     public static class Note {
-        final int pitch; // 60 = Middle C
+        public final int pitch; // 60 = Middle C
+        public final int fraction; // 4 = quarter note
         
-        public Note(int pitch) {
+        public Note(int pitch, int fraction) {
             this.pitch = pitch;
+            this.fraction = fraction;
         }
         
-        public String toString() {
+        public String toString() { //fixme move to musicservice?
             if (pitch < 0) return "--";
             
             int octave = (pitch / 12) - 1;
@@ -63,7 +62,6 @@ public class Model {
         
         static final class Builder {
             private MelodyBase melodyChromosome;
-            private MelodyBase last;
             Builder setMelody(MelodyBase melodyBase){ //fixme allow building melodybases?
                 this.melodyChromosome = melodyBase;
                 return this;

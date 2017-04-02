@@ -3,12 +3,10 @@ package view;
 import main.Controller;
 import models.Model;
 import models.Monster;
-import view.View;
 
 import java.util.Scanner;
 import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ConsoleView implements View {
@@ -42,19 +40,26 @@ public class ConsoleView implements View {
         while (true) {
             String input = keyboard.next();
             try {
-                int i = Integer.parseInt(input);
-                return i;
+                return Integer.parseInt(input);
             } catch (NumberFormatException e) {
                 outl("Try again.");
             }
         }
     }
-    
+
     private Runnable quit = new Runnable() {
         public void run() {
             outl("ending program.");
             done = true;
             Controller.end();
+        }
+    };
+
+    private Runnable play = new Runnable() {
+        public void run() {
+            outl("playing monster:");
+            display(data.get(0));
+            Controller.play(data.get(0));
         }
     };
     
@@ -72,6 +77,7 @@ public class ConsoleView implements View {
         options = new HashMap<>();
         options.put("display", displayOption);
         options.put("breed", breed);
+        options.put("play", play);
         options.put("help", help);
         options.put("quit", quit);
         
