@@ -1,0 +1,5 @@
+package music;
+
+interface MusicService{
+
+}
