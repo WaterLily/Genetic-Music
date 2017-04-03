@@ -24,32 +24,28 @@ public class WindowView implements View {
   private static final Color SOFT_BLUE = new Color(100, 100, 200);
   private static final Color GREY_BLUE = new Color(75, 75, 100);
 
-  private List<Singer> singers;
+  private Set<Singer> active;
   private boolean playing;
-  private JPanel singerPane;
+  private JFrame window;
+  private SingerPane singerPane;
   private DetailsPane detailsPane;
   private JButton breed;
 
   public WindowView() {
-    singers = new ArrayList<>();
+    active = new HashSet<>();
     playing = false;
-  }
-
-  @Override
-  public void start() {
-    JFrame window = new JFrame("Genetic Music");
+    window = new JFrame("Genetic Music");
     window.setLayout(new BorderLayout());
     window.setSize(700, 400);
     window.setLocationRelativeTo(null);
     window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     //create pane for displaying creature squares
-    singerPane = new JPanel();
+    singerPane = new SingerPane();
     singerPane.setLayout(new FlowLayout(FlowLayout.LEFT));
     singerPane.setPreferredSize(new Dimension(350, 400));
 //    singerPane.setBorder(BorderFactory.createEtchedBorder(SOFT_BLUE, GREY_BLUE));
     window.getContentPane().add(singerPane, BorderLayout.WEST);
-    displaySingers();
 
     //create pane for displaying details
     detailsPane = new DetailsPane();
@@ -62,10 +58,8 @@ public class WindowView implements View {
       playing = !playing;
       if (playing) {
         Set<Monster> singing = new HashSet<>();
-        for (Singer singer : singers) {
-          if (singer.isActive()) {
-            singing.add(singer.monster);
-          }
+        for (Singer singer : active) {
+          singing.add(singer.monster);
         }
         Controller.play(singing);
         play.setText("Pause");
@@ -79,10 +73,10 @@ public class WindowView implements View {
     breed.addActionListener(e -> {
       Monster parent1 = null;
       Monster parent2 = null;
-      for (Singer singer : singers) {
-        if (singer.isActive() && parent1 == null) {
+      for (Singer singer : active) {
+        if (parent1 == null) {
           parent1 = singer.monster;
-        } else if (singer.isActive()) {
+        } else {
           parent2 = singer.monster;
         }
       }
@@ -93,52 +87,65 @@ public class WindowView implements View {
     controls.add(play);
     controls.add(breed);
     window.getContentPane().add(controls, BorderLayout.SOUTH);
+  }
 
+  @Override
+  public void start() {
     window.setVisible(true);
   }
 
   @Override
   public void setData(List<Monster> monsters) {
+    singerPane.clear();
     for (Monster monster : monsters) {
-      this.singers.add(new Singer(monster));
+      singerPane.add(new Singer(monster));
     }
   }
 
   @Override
   public void add(Monster monster) {
     Singer singer = new Singer(monster);
-    this.singers.add(singer);
-    JButton button = makeButton(singer, singers.size() - 1 + "");
-    singerPane.add(button);
-    button.doClick();
-    singerPane.revalidate();
+    singerPane.add(singer);
   }
 
-  private void displaySingers() {
-    int i = 0;
-    for (Singer singer : singers) {
-      singerPane.add(makeButton(singer, i + ""));
-      i++;
+  private class SingerPane extends JPanel {
+    private List<Singer> singers;
+
+    SingerPane() {
+      this.singers = new ArrayList<>();
     }
-  }
 
-  private JButton makeButton(Singer singer, String name) {
-    JButton button = new JButton(name);
-    button.addActionListener(e -> {
-      singer.setActive(!singer.isActive());
+    void clear() {
+      singers.clear();
+      removeAll();
+    }
+
+    void add(Singer singer) {
+      singers.add(singer);
+      JButton button = makeButton(singer, singers.size() - 1 + "");
+      add(button);
+      button.doClick();
+      revalidate();
+    }
+
+    private JButton makeButton(Singer singer, String name) {
+      JButton button = new JButton(name);
+      button.addActionListener(e -> {
+        singer.setActive(!singer.isActive());
+        button.setBackground(singer.isActive() ? Color.PINK : Color.GRAY);
+        if (singer.isActive()) {
+          active.add(singer);
+        } else {
+          active.remove(singer);
+        }
+
+        detailsPane.display(singer);
+
+        breed.setEnabled(active.size() == 2);
+      });
       button.setBackground(singer.isActive() ? Color.PINK : Color.GRAY);
-      updateState(singer);
-    });
-    button.setBackground(singer.isActive() ? Color.PINK : Color.GRAY);
-    return button;
-  }
-
-  private int numActive;
-
-  private void updateState(Singer singer) {
-    detailsPane.display(singer);
-    numActive += singer.isActive() ? 1 : -1;
-    breed.setEnabled(numActive == 2);
+      return button;
+    }
   }
 
   private static class DetailsPane extends JPanel {
@@ -146,7 +153,7 @@ public class WindowView implements View {
     DetailsPane() {
       this.details = new JTextPane();
       JScrollPane scroll = new JScrollPane(details);
-      scroll.setPreferredSize(new Dimension(300, 400));
+      scroll.setPreferredSize(new Dimension(310, 400));
       add(scroll);
     }
     void display(Singer singer) {
