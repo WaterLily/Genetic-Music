@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 
+/** Implements a text-based prototype UI. */
 public class ConsoleView implements View {
     
     private Scanner keyboard;
@@ -57,9 +58,11 @@ public class ConsoleView implements View {
 
     private Runnable play = new Runnable() {
         public void run() {
+            outl("enter the index of the creature to play.");
+            int index = getInt();
             outl("playing monster:");
-            display(data.get(0));
-            Controller.play(data.get(0));
+            display(data.get(index));
+            Controller.play(data.get(index));
         }
     };
     
@@ -96,7 +99,7 @@ public class ConsoleView implements View {
         return keyboard.next();
     }
     
-    public void display(Monster monster) {
+    void display(Monster monster) {
         
         for (Model.Note note : monster.getMelody()) {
             out(note.toString() + " ");
@@ -106,7 +109,7 @@ public class ConsoleView implements View {
         
     }
     
-    public void display(List<Monster> monsters){
+    void display(List<Monster> monsters){
         for (Monster monster : monsters) {
             display(monster);
         }

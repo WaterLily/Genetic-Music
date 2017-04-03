@@ -8,14 +8,13 @@ import storage.RandomStorage;
 import storage.StorageService;
 import view.ConsoleView;
 import view.View;
+import view.WindowView;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Controller {
     
-    private static final View view = new ConsoleView();
+    private static final View view = new WindowView();
     private static final StorageService storageService = new RandomStorage();
     private static final MusicService musicService = new JMusicService();
 
@@ -35,6 +34,10 @@ public class Controller {
      }
 
      public static void play(Monster... singers) {
+         play(Arrays.asList(singers));
+     }
+
+     public static void play(Collection<Monster> singers) {
          Set<List<Model.Note>> songs = new HashSet<>();
          for (Monster singer : singers) {
              songs.add(singer.getMelody());

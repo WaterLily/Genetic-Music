@@ -67,5 +67,8 @@ public class Monster {
         return 0.25;
     }
 
-
+    @Override
+    public String toString() {
+        return melodyChromosome1.toString() + melodyChromosome2.toString();
+    }
 }
