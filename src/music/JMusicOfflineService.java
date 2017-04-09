@@ -1,5 +1,6 @@
 package music;
 
+import jm.audio.RTMixer;
 import jm.music.data.Note;
 import jm.music.data.Part;
 import jm.music.data.Phrase;
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.Set;
 
 public class JMusicService implements MusicService {
+
+    public JMusicService() {
+        RTMixer mixer = new RTMixer();
+    }
 
     @Override
     public void playMelody(List<Model.Note> notes) {
