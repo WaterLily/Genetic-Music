@@ -16,12 +16,23 @@ public class Controller {
 
   private static final View view = new WindowView();
   private static final StorageService storageService = new RandomStorage();
-  private static final MusicService musicService = new JMusicRealTimeService();
+  private static MusicService musicService;
 
   public static void main(String[] args) {
     List<Monster> monsters = storageService.loadMonsters();
+    musicService = args.length == 0
+        ? new JMusicOfflineService()
+        : new JMusicRealTimeService();
     view.setData(monsters);
     view.start();
+  }
+
+  private static Set<Model.Melody> getSongs(Collection<Monster> singers) {
+    Set<Model.Melody> songs = new HashSet<>(singers.size());
+    for (Monster singer : singers) {
+      songs.add(new Model.Melody(singer.getName(), singer.getMelody()));
+    }
+    return songs;
   }
 
   public static void end() {
@@ -33,20 +44,22 @@ public class Controller {
     view.add(child);
   }
 
-  public static void play(Monster... singers) {
-    play(Arrays.asList(singers));
-  }
-
-  public static void play(Collection<Monster> singers) {
-    for (Monster singer : singers) {
-      musicService.addPart(new Model.Melody(singer.toString(), singer.getMelody()));
-    }
-    musicService.play();
+  public static void play(Set<Monster> singers, Set<String> activeSingers) {
+    Set<Model.Melody> melodies = getSongs(singers);
+    musicService.play(melodies, activeSingers);
   }
 
   public static void pause() {
     musicService.pause();
   }
 
-  public 
+  public static void activateSinger(Monster singer) {
+    musicService.addPart(new Model.Melody(singer.getName(), singer.getMelody()));
+  }
+
+  public static void deactivateSinger(Monster singer) {
+    musicService.removePart(new Model.Melody(singer.getName(), singer.getMelody()));
+  }
+
+//  public
 }

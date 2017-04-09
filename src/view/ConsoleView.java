@@ -4,10 +4,13 @@ import main.Controller;
 import models.Model;
 import models.Monster;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Set;
 
 /** Implements a text-based prototype UI. */
 public class ConsoleView implements View {
@@ -62,7 +65,10 @@ public class ConsoleView implements View {
             int index = getInt();
             outl("playing monster:");
             display(data.get(index));
-            Controller.play(data.get(index));
+            Set<Monster> singers = new HashSet<>(data);
+            Set<String> actives = new HashSet<>(1);
+            actives.add(data.get(index).getName());
+            Controller.play(singers, actives);
         }
     };
     

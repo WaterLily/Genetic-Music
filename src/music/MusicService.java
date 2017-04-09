@@ -3,17 +3,19 @@ package music;
 import jm.music.data.Note;
 import models.Model;
 
+import java.util.Set;
+
 public interface MusicService {
 
   void addPart(Model.Melody notes);
 
   void removePart(Model.Melody notes);
 
-  void play();
+  void play(Set<Model.Melody> allSongs, Set<String> activeSongs);
 
   void pause();
 
-  static Note transform(Model.Note note) {
-    return new Note(note.pitch, 1.0 / (double) note.fraction);
+  static Note transform(Model.Note modelNote) {
+    return new Note(modelNote.pitch, 1.0 / (double) modelNote.fraction);
   }
 }

@@ -9,69 +9,82 @@ import models.Model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Implementation of {@link MusicService} that allows real-time interaction with the music. */
 public class JMusicRealTimeService implements MusicService {
 
   private RTMixer mixer;
-  private final Map<String, RTLine> lines;
+  private final Map<String, Line> lineMap;
 
   public JMusicRealTimeService() {
-    this.lines = new HashMap<>();
+    this.lineMap = new HashMap<>();
   }
 
   @Override
   public void addPart(Model.Melody notes) {
-    if (!lines.containsKey(notes.name)) {
-      System.out.println("adding line");
-      lines.put(notes.name, new Line(new Instrument[]{new SimpleInst()}, notes.notes));
-      if (mixer == null) {
-        System.out.println("initializing mixer");
-        mixer = new RTMixer(new RTLine[]{lines.get(notes.name)});
-        mixer.begin();
-      } else {
-        System.out.println("adding to mixer");
-        mixer.addLines(new RTLine[]{lines.get(notes.name)});
-      }
-    } else {
-      System.out.println("unpausing line");
-      lines.get(notes.name).unPause(); // fixme probably not what I want
+    if (lineMap.containsKey(notes.name)) {
+      lineMap.get(notes.name).sound();
     }
   }
 
   @Override
   public void removePart(Model.Melody notes) {
-    lines.get(notes.name).pause(); // fixme probably not what I want
+    if (lineMap.containsKey(notes.name)) {
+      lineMap.get(notes.name).silence();
+    }
   }
 
   @Override
-  public void play() {
-    System.out.println("playing mixer");
-    mixer.unPause();
+  public void play(Set<Model.Melody> allSongs, Set<String> activeSongs) {
+    lineMap.clear();
+    Line[] lines = new Line[allSongs.size()];
+    int i = 0;
+    for (Model.Melody song : allSongs) {
+      lines[i] = new Line(new Instrument[]{new SimpleInst()}, song.notes);
+      lineMap.put(song.name, lines[i]);
+      if (activeSongs.contains(song.name)) {
+        lines[i].sound();
+      }
+      i++;
+    }
+    mixer = new RTMixer(lines);
+    mixer.begin();
   }
 
   @Override
   public void pause() {
-    System.out.println("pausing mixer");
-    mixer.pause();
+    mixer.stop();
   }
 
   private static class Line extends RTLine {
 
     final List<Model.Note> notes;
     int index;
+    boolean sound;
 
-    public Line(Instrument[] instruments, List<Model.Note> notes) {
+    Line(Instrument[] instruments, List<Model.Note> notes) {
       super(instruments);
       this.notes = notes;
       this.index = 0;
     }
 
     @Override
-    public Note getNextNote() {
-      Model.Note note = notes.get(index);
+    public synchronized Note getNextNote() {
+      Note playNote = MusicService.transform(notes.get(index));
+      if (!sound) {
+        playNote.setPitch(Note.MIN_PITCH);
+      }
       index = (index + 1) % notes.size();
-      return MusicService.transform(note);
+      return playNote;
+    }
+
+    void silence() {
+      sound = false;
+    }
+
+    void sound() {
+      sound = true;
     }
   }
 }

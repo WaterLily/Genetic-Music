@@ -34,6 +34,7 @@ public class WindowView implements View {
   public WindowView() {
     active = new HashSet<>();
     playing = false;
+
     window = new JFrame("Genetic Music");
     window.setLayout(new BorderLayout());
     window.setSize(700, 400);
@@ -57,14 +58,18 @@ public class WindowView implements View {
     play.addActionListener(e -> {
       playing = !playing;
       if (playing) {
-        Set<Monster> singing = new HashSet<>();
-        for (Singer singer : active) {
-          singing.add(singer.monster);
+        Set<Monster> singers = new HashSet<>();
+        Set<String> names = new HashSet<>();
+        for (Singer singer : singerPane.singers) {
+          singers.add(singer.monster);
+          if (singer.isActive()) {
+            names.add(singer.monster.getName());
+          }
         }
-        Controller.play(singing);
+        Controller.play(singers, names);
         play.setText("Pause");
       } else {
-        //stop singing
+        Controller.pause();
         play.setText("Play");
       }
     });
@@ -98,7 +103,8 @@ public class WindowView implements View {
   public void setData(List<Monster> monsters) {
     singerPane.clear();
     for (Monster monster : monsters) {
-      singerPane.add(new Singer(monster));
+      Singer singer = new Singer(monster);
+      singerPane.add(singer);
     }
   }
 
@@ -109,7 +115,7 @@ public class WindowView implements View {
   }
 
   private class SingerPane extends JPanel {
-    private List<Singer> singers;
+    final List<Singer> singers;
 
     SingerPane() {
       this.singers = new ArrayList<>();
@@ -135,8 +141,10 @@ public class WindowView implements View {
         button.setBackground(singer.isActive() ? Color.PINK : Color.GRAY);
         if (singer.isActive()) {
           active.add(singer);
+          Controller.activateSinger(singer.monster);
         } else {
           active.remove(singer);
+          Controller.deactivateSinger(singer.monster);
         }
 
         detailsPane.display(singer);

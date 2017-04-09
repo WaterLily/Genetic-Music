@@ -67,8 +67,12 @@ public class Monster {
         return 0.25;
     }
 
+    public String getName() {
+        return hashCode() + "";
+    }
+
     @Override
     public String toString() {
-        return melodyChromosome1.toString() + melodyChromosome2.toString();
+        return melodyChromosome1.toString() + " " + melodyChromosome2.toString();
     }
 }

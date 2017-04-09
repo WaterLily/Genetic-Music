@@ -19,7 +19,7 @@ public final class SimpleInst extends jm.audio.Instrument{
         this.sampleRate, this.channels);
     Envelope env = new Envelope(osc,
         new double[] {0.0, 0.0, 0.1, 1.0, 1.0, 0.0});
-//    SampleOut sout = new SampleOut(env);
+    SampleOut sout = new SampleOut(env);
   }
 }
 

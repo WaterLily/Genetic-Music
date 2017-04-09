@@ -54,7 +54,7 @@ public class Model {
 
     @Override
     public String toString() { //fixme move to musicservice?
-      if (pitch < 0) return "--";
+      if (pitch <= 0) return "--";
 
       int octave = (pitch / 12) - 1;
       int noteIndex = (pitch % 12);
