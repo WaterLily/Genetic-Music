@@ -1,12 +1,19 @@
 package music;
 
+import jm.music.data.Note;
 import models.Model;
 
-import java.util.List;
-import java.util.Set;
+public interface MusicService {
 
-public interface MusicService{
+  void addPart(Model.Melody notes);
 
-    void playMelody(List<Model.Note> notes);
-    void playMultipleParts(Set<List<Model.Note>> notes);
+  void removePart(Model.Melody notes);
+
+  void play();
+
+  void pause();
+
+  static Note transform(Model.Note note) {
+    return new Note(note.pitch, 1.0 / (double) note.fraction);
+  }
 }

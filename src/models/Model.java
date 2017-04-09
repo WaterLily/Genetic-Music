@@ -2,6 +2,8 @@ package models;
 
 import static utils.Utils.checkNotNull;
 
+import java.util.List;
+
 /** Contains classes to internally represent music elements and model logic. */
 public class Model {
 
@@ -28,6 +30,16 @@ public class Model {
         result += " " + next.toString();
       }
       return result;
+    }
+  }
+
+  public static class Melody {
+    public final String name;
+    public final List<Note> notes;
+
+    public Melody(String name, List<Note> notes) {
+      this.notes = checkNotNull(notes);
+      this.name = name;
     }
   }
 
