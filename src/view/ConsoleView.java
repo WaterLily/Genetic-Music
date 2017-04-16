@@ -106,12 +106,7 @@ public class ConsoleView implements View {
     }
     
     void display(Monster monster) {
-        
-        for (Model.Note note : monster.getMelody()) {
-            out(note.toString() + " ");
-        }
-        
-        outl("");
+        outl(monster.toString());
         
     }
     

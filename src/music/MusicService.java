@@ -15,7 +15,7 @@ public interface MusicService {
 
   void pause();
 
-  static Note transform(Model.Note modelNote) {
+  static Note transform(Model.SimpleNote modelNote) {
     return new Note(modelNote.pitch, 1.0 / (double) modelNote.fraction);
   }
 }

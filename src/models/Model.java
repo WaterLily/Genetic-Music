@@ -2,16 +2,18 @@ package models;
 
 import static utils.Utils.checkNotNull;
 
+import jm.music.data.Note;
+
 import java.util.List;
 
 /** Contains classes to internally represent music elements and model logic. */
 public class Model {
 
   static class MelodyBase {
-    final Note note;
+    final SimpleNote note;
     private MelodyBase next;
 
-    MelodyBase(Note note) {
+    MelodyBase(SimpleNote note) {
       this.note = note;
     }
 
@@ -43,17 +45,17 @@ public class Model {
     }
   }
 
-  public static class Note {
+  public static class SimpleNote {
     public final int pitch; // 60 = Middle C
     public final int fraction; // 4 = quarter note
 
-    public Note(int pitch, int fraction) {
+    public SimpleNote(int pitch, int fraction) {
       this.pitch = pitch;
       this.fraction = fraction;
     }
 
     @Override
-    public String toString() { //fixme move to musicservice?
+    public String toString() {
       if (pitch <= 0) return "--";
 
       int octave = (pitch / 12) - 1;
@@ -64,9 +66,9 @@ public class Model {
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof Note
-          && this.pitch == ((Note) other).pitch
-          && this.fraction == ((Note) other).fraction;
+      return other instanceof SimpleNote
+          && this.pitch == ((SimpleNote) other).pitch
+          && this.fraction == ((SimpleNote) other).fraction;
     }
   }
 
@@ -109,7 +111,7 @@ public class Model {
     }
   }
 
-  static MelodyBase makeMelodyBases(Note[] notes) {
+  static MelodyBase makeMelodyBases(SimpleNote[] notes) {
     MelodyBase last = null;
     for (int i = notes.length - 1; i >= 0; i--) {
       MelodyBase base = new MelodyBase(notes[i]);

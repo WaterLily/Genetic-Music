@@ -35,12 +35,8 @@ public class JMusicOfflineService implements MusicService {
   public void pause() {
   }
 
-  private Phrase makePhrase(List<Model.Note> notes) {
-    Note[] noteArray = new Note[notes.size()];
-    for (int i = 0; i < notes.size(); i++) {
-      noteArray[i] = MusicService.transform(notes.get(i));
-    }
-    return new Phrase(noteArray);
+  private Phrase makePhrase(List<Note> notes) {
+    return new Phrase(notes.toArray(new Note[notes.size()]));
   }
 
   private void play(Score score) {

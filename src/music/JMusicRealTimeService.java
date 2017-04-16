@@ -58,12 +58,11 @@ public class JMusicRealTimeService implements MusicService {
   }
 
   private static class Line extends RTLine {
-
-    final List<Model.Note> notes;
+    final List<Note> notes;
     int index;
     boolean sound;
 
-    Line(Instrument[] instruments, List<Model.Note> notes) {
+    Line(Instrument[] instruments, List<Note> notes) {
       super(instruments);
       this.notes = notes;
       this.index = 0;
@@ -71,12 +70,12 @@ public class JMusicRealTimeService implements MusicService {
 
     @Override
     public synchronized Note getNextNote() {
-      Note playNote = MusicService.transform(notes.get(index));
+      Note note = notes.get(index).copy();
       if (!sound) {
-        playNote.setPitch(Note.MIN_PITCH);
+        note.setPitch(Note.MIN_PITCH);
       }
       index = (index + 1) % notes.size();
-      return playNote;
+      return note;
     }
 
     void silence() {

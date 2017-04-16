@@ -13,15 +13,15 @@ public class ModelTest {
 
   @Test
   public void makeMelodyBases() throws Exception {
-    Model.Note[] notes = {new Model.Note(60, 8), new Model.Note(62, 8), new Model.Note(64, 8)};
+    Model.SimpleNote[] notes = {new Model.SimpleNote(60, 8), new Model.SimpleNote(62, 8), new Model.SimpleNote(64, 8)};
 
     Model.MelodyBase base = Model.makeMelodyBases(notes);
 
     assertEquals(base.toString(), getNotes(base), Arrays.asList(notes));
   }
 
-  private List<Model.Note> getNotes(Model.MelodyBase base) {
-    List<Model.Note> notes = new ArrayList<>();
+  private List<Model.SimpleNote> getNotes(Model.MelodyBase base) {
+    List<Model.SimpleNote> notes = new ArrayList<>();
     while (base != null) {
       notes.add(base.note);
       base = base.next();

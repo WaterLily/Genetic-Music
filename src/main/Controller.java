@@ -30,13 +30,13 @@ public class Controller {
   private static Set<Model.Melody> getSongs(Collection<Monster> singers) {
     Set<Model.Melody> songs = new HashSet<>(singers.size());
     for (Monster singer : singers) {
-      songs.add(new Model.Melody(singer.getName(), singer.getMelody()));
+      songs.add(singer.getMelody());
     }
     return songs;
   }
 
   public static void end() {
-
+    musicService.pause();
   }
 
   public static void breed(Monster parent1, Monster parent2) {
@@ -54,11 +54,13 @@ public class Controller {
   }
 
   public static void activateSinger(Monster singer) {
-    musicService.addPart(new Model.Melody(singer.getName(), singer.getMelody()));
+    System.out.println("activating " + singer.getName());
+    musicService.addPart(singer.getMelody());
   }
 
   public static void deactivateSinger(Monster singer) {
-    musicService.removePart(new Model.Melody(singer.getName(), singer.getMelody()));
+    System.out.println("de-activating " + singer.getName());
+    musicService.removePart(singer.getMelody());
   }
 
 //  public
