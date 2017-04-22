@@ -13,7 +13,10 @@ public class ModelTest {
 
   @Test
   public void makeMelodyBases() throws Exception {
-    Model.SimpleNote[] notes = {new Model.SimpleNote(60, 8), new Model.SimpleNote(62, 8), new Model.SimpleNote(64, 8)};
+    Model.SimpleNote[] notes = {
+        new Model.SimpleNote(60, 8),
+        new Model.SimpleNote(62, 8),
+        new Model.SimpleNote(64, 8)};
 
     Model.MelodyBase base = Model.makeMelodyBases(notes);
 

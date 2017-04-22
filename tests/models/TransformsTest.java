@@ -8,6 +8,7 @@ import static jm.constants.Pitches.E4;
 import static jm.constants.Pitches.E5;
 import static jm.constants.Pitches.G4;
 import static junit.framework.TestCase.assertEquals;
+import static models.Constants.RELATIVE_MINOR_SCALE_OFFSET;
 
 import jm.music.data.Note;
 import org.junit.Test;
@@ -26,7 +27,8 @@ public class TransformsTest {
     List<Note> original = Arrays.asList(new Note(C4, 1), new Note(E4, 0.5), new Note(G4, 2));
     List<Note> expected = Arrays.asList(new Note(A4, 1), new Note(C5, 0.5), new Note(E5, 2));
 
-    assertListEquals(new Transforms.DiatonicTranspose(C4, 5).transform(original), expected);
+    assertListEquals(new Transforms.DiatonicTranspose(C4, RELATIVE_MINOR_SCALE_OFFSET)
+        .transform(original), expected);
   }
 
   @Test

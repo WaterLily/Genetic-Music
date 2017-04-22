@@ -4,7 +4,6 @@ import static jm.constants.Durations.SIXTEENTH_NOTE;
 
 import jm.constants.Scales;
 import jm.music.data.Note;
-import jm.music.data.Part;
 import jm.music.data.Phrase;
 import jm.music.tools.Mod;
 
@@ -14,10 +13,13 @@ import java.util.Collection;
 import java.util.List;
 
 /** Transformations of musical phrases. */
-public class Transforms {
+class Transforms {
 
   static abstract class Transform {
     abstract List<Note> transform(List<Note> phrase);
+
+    @Override
+    public abstract boolean equals(Object other);
 
     void checkLength(List<Note> original, List<Note> result) {
       if (length(original) != length(result)) {
@@ -26,7 +28,19 @@ public class Transforms {
     }
   }
 
-  static class DiatonicTranspose extends Transform { //fixme test
+  static class Identity extends Transform {
+    @Override
+    List<Note> transform(List<Note> phrase) {
+      return new ArrayList<>(phrase);
+    }
+
+    @Override
+    public boolean equals(Object other) { //fixme test (and others)
+      return other instanceof Identity;
+    }
+  }
+
+  static class DiatonicTranspose extends Transform {
     private final int startKey;
     private final int semitones;
 
@@ -41,9 +55,23 @@ public class Transforms {
       Mod.transpose(temp, semitones, Scales.MAJOR_SCALE, startKey);
       return Arrays.asList(temp.getNoteArray());
     }
+
+    @Override
+    public boolean equals(Object other) {
+      if (!(other instanceof DiatonicTranspose)) {
+        return false;
+      }
+      DiatonicTranspose cast = (DiatonicTranspose) other;
+      return cast.startKey == this.startKey && cast.semitones == this.semitones;
+    }
+
+    @Override
+    public String toString() {
+      return "DiatonicTranspose(" + startKey + ", " + semitones + ")";
+    }
   }
 
-  static class Transpose extends Transform { //fixme test
+  static class Transpose extends Transform {
     private final int semitones;
 
     Transpose(int semitones){
@@ -56,13 +84,27 @@ public class Transforms {
       Mod.transpose(temp, semitones);
       return Arrays.asList(temp.getNoteArray());
     }
+
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof DiatonicTranspose
+          && ((DiatonicTranspose) other).semitones == this.semitones;
+    }
   }
 
-  static class Shift extends Transform { //fixme test
-    private final boolean shiftLeft;
+  static class Shift extends Transform {
+    private final int shift; //fixme use
 
-    Shift(boolean shiftLeft) {
-      this.shiftLeft = shiftLeft;
+    /**
+     * @param shift The number of sixteenth-notes to shift.  Positive shifts to the right, Negative
+     *              to the left.
+     */
+    Shift(int shift) {
+      this.shift = shift;
+    }
+
+    Shift(boolean unused) {
+      this.shift = -11;
     }
 
     @Override
@@ -79,6 +121,12 @@ public class Transforms {
       }
       checkLength(notes, result);
       return result;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof Shift
+          && ((Shift) other).shift == this.shift;
     }
   }
 
