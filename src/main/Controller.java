@@ -40,7 +40,7 @@ public class Controller {
   }
 
   public static void breed(Monster parent1, Monster parent2) {
-    Monster child = Model.breed(parent1, parent2);
+    Monster child = Monster.breed(parent1, parent2);
     view.add(child);
   }
 

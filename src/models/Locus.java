@@ -3,10 +3,10 @@ package models;
 import static models.Constants.KEY_C;
 import static models.Constants.RELATIVE_MINOR_SCALE_OFFSET;
 
-/** Models a locus in a genome. */
-abstract class Locus {
+/** Models a locus in a genome for the purpose of transformational genes. */
+enum Locus {
 
-  static final Locus MODE = new Locus() {
+  MODE {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
       if (a1 == Allele.DEFAULT || a2 == Allele.DEFAULT) {
@@ -16,9 +16,8 @@ abstract class Locus {
       }
       throw new IllegalArgumentException();
     }
-  };
-
-  static final Locus TIME_OFFSET = new Locus() {
+  },
+  TIME_OFFSET  {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
       if (a1 instanceof Allele.IntAllele && a2 instanceof Allele.IntAllele) {
@@ -34,23 +33,20 @@ abstract class Locus {
         return new Transforms.Shift(Math.abs(x) < Math.abs(y) ? x : y);
       }
     }
-  };
-
-  static final Locus ARTICULATION = new Locus() {
+  },
+  ARTICULATION {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
       throw new UnsupportedOperationException();
     }
-  };
-
-  static final Locus MULTIPLICATION = new Locus() {
+  },
+  MULTIPLICATION {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
       throw new UnsupportedOperationException();
     }
-  };
-
-  static final Locus SLUR = new Locus() {
+  },
+  SLUR {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
       throw new UnsupportedOperationException();

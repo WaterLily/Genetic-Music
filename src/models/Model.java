@@ -6,34 +6,8 @@ import jm.music.data.Note;
 
 import java.util.List;
 
-/** Contains classes to internally represent music elements and model logic. */
+/** Contains classes to internally represent music elements. */
 public class Model {
-
-  static class MelodyBase {
-    final SimpleNote note;
-    private MelodyBase next;
-
-    MelodyBase(SimpleNote note) {
-      this.note = note;
-    }
-
-    MelodyBase setNext(MelodyBase next) {
-      this.next = next;
-      return this;
-    }
-
-    MelodyBase next() {
-      return next;
-    }
-
-    public String toString() {
-      String result = note.toString();
-      if (next != null) {
-        result += " " + next.toString();
-      }
-      return result;
-    }
-  }
 
   public static class Melody {
     public final String name;
@@ -42,6 +16,10 @@ public class Model {
     public Melody(String name, List<Note> notes) {
       this.notes = checkNotNull(notes);
       this.name = name;
+    }
+
+    public String toString() {
+      return notes.toString();
     }
   }
 
@@ -74,57 +52,4 @@ public class Model {
 
   private static final String[] noteString =
       new String[]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-
-
-  static class Gamete {
-    final MelodyBase melodyChromosome;
-
-    private Gamete(MelodyBase melodyChromosome) {
-      this.melodyChromosome = melodyChromosome;
-    }
-
-    static Builder builder() {
-      return new Builder();
-    }
-
-    static final class Builder {
-      private MelodyBase melodyChromosome;
-
-      Builder setMelody(MelodyBase melodyBase) { //fixme allow building melodybases?
-        this.melodyChromosome = checkNotNull(melodyBase);
-        return this;
-      }
-
-      Gamete build() {
-        if (melodyChromosome == null) {
-          throw new IllegalStateException("Missing required field: melody");
-        }
-        return new Gamete(melodyChromosome);
-      }
-
-      private Builder() {}
-    }
-
-    @Override
-    public String toString() {
-      return melodyChromosome.toString();
-    }
-  }
-
-  static MelodyBase makeMelodyBases(SimpleNote[] notes) {
-    MelodyBase last = null;
-    for (int i = notes.length - 1; i >= 0; i--) {
-      MelodyBase base = new MelodyBase(notes[i]);
-      base.setNext(last);
-      last = base;
-    }
-    return last;
-  }
-
-  public static Monster breed(Monster parent1, Monster parent2) {
-    Gamete one = parent1.makeGamete();
-    Gamete two = parent2.makeGamete();
-    return new Monster(one, two);
-  }
-
 }

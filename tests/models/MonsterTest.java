@@ -33,7 +33,7 @@ public class MonsterTest {
   }
 
   @Test
-  public void testGetMelody() {
+  public void testGetMelody() { //fixme
     Model.SimpleNote[] notes1 = {new Model.SimpleNote(60, 8), new Model.SimpleNote(62, 8), new Model.SimpleNote(64, 8)};
     Model.SimpleNote[] notes2 = {new Model.SimpleNote(65, 8), new Model.SimpleNote(67, 8), new Model.SimpleNote(69, 8)};
     Monster monster = new Monster(notes1, notes2);
@@ -41,17 +41,17 @@ public class MonsterTest {
     expected.addAll(Arrays.asList(notes1));
     expected.addAll(Arrays.asList(notes2));
 
-    assertEquals(monster.getMelody().toString(), monster.getMelody(), expected);
+    assertEquals(monster.getMelody().toString(), expected, monster.getMelody());
   }
 
   private void testGameteConstruction(Monster monster, Random random, Model.SimpleNote[] expected) {
     monster.setRandom(random);
-    Model.Gamete gamete = monster.makeGamete();
+    Gamete gamete = monster.makeGamete();
     assertTrue(gamete.toString(), containsExactlyNotes(gamete, expected));
   }
 
-  private boolean containsExactlyNotes(Model.Gamete gamete, Model.SimpleNote[] notes) {
-    Model.MelodyBase base = gamete.melodyChromosome;
+  private boolean containsExactlyNotes(Gamete gamete, Model.SimpleNote[] notes) {
+    Genome.MelodyBase base = gamete.melodyAlleles;
     for (Model.SimpleNote note : notes) {
       if (base == null || !base.note.equals(note)) {
         return false;

@@ -42,17 +42,17 @@ class Transforms {
 
   static class DiatonicTranspose extends Transform {
     private final int startKey;
-    private final int semitones;
+    private final int scaleTones;
 
-    DiatonicTranspose(int startKey, int semitones){
+    DiatonicTranspose(int startKey, int scaleTones){
       this.startKey = startKey;
-      this.semitones = semitones;
+      this.scaleTones = scaleTones;
     }
 
     @Override
     List<Note> transform(List<Note> phrase) {
       Phrase temp = new Phrase(phrase.toArray(new Note[phrase.size()]));
-      Mod.transpose(temp, semitones, Scales.MAJOR_SCALE, startKey);
+      Mod.transpose(temp, scaleTones, Scales.MAJOR_SCALE, startKey);
       return Arrays.asList(temp.getNoteArray());
     }
 
@@ -62,12 +62,12 @@ class Transforms {
         return false;
       }
       DiatonicTranspose cast = (DiatonicTranspose) other;
-      return cast.startKey == this.startKey && cast.semitones == this.semitones;
+      return cast.startKey == this.startKey && cast.scaleTones == this.scaleTones;
     }
 
     @Override
     public String toString() {
-      return "DiatonicTranspose(" + startKey + ", " + semitones + ")";
+      return "DiatonicTranspose(" + startKey + ", " + scaleTones + ")";
     }
   }
 
@@ -88,7 +88,7 @@ class Transforms {
     @Override
     public boolean equals(Object other) {
       return other instanceof DiatonicTranspose
-          && ((DiatonicTranspose) other).semitones == this.semitones;
+          && ((DiatonicTranspose) other).scaleTones == this.semitones;
     }
   }
 
