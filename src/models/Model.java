@@ -4,12 +4,29 @@ import static utils.Utils.checkNotNull;
 
 import jm.music.data.Note;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-/** Contains classes to internally represent music elements. */
+/** Stores game state and contains classes to internally represent music elements. */
 public class Model {
 
-  public static class Melody {
+  private static List<Monster> creatures = new ArrayList<>();
+
+  public static List<Monster> creatures() {
+    return new ArrayList<>(creatures);
+  }
+
+  public static void addCreature(Monster creature) {
+    creatures.add(creature);
+  }
+
+  public static void setCreatures(List<Monster> newCreatures) {
+    creatures.clear();
+    creatures.addAll(newCreatures);
+  }
+
+  public static class Melody implements Serializable {
     public final String name;
     public final List<Note> notes;
 
@@ -23,7 +40,7 @@ public class Model {
     }
   }
 
-  public static class SimpleNote {
+  public static class SimpleNote implements Serializable {
     public final int pitch; // 60 = Middle C
     public final int fraction; // 4 = quarter note
 

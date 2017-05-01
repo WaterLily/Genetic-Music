@@ -14,6 +14,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +41,11 @@ public class WindowView implements View {
     window.setLayout(new BorderLayout());
     window.setSize(700, 400);
     window.setLocationRelativeTo(null);
+    window.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        Controller.end();
+      }
+    });
     window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     //create pane for displaying creature squares

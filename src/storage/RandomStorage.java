@@ -36,4 +36,9 @@ public class RandomStorage implements StorageService {
     return monsters;
 
   }
+
+  @Override
+  public void save(List<Monster> monsters) {
+    // Not applicable
+  }
 }

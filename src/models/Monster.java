@@ -1,5 +1,6 @@
 package models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,7 +14,7 @@ import models.Model.Melody;
 import models.Model.SimpleNote;
 
 /** Models a singing creature. */
-public class Monster {
+public class Monster implements Serializable {
 
   private final Genome genes;
   private Melody song;

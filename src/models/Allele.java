@@ -1,7 +1,9 @@
 package models;
 
+import java.io.Serializable;
+
 /** Models an allele in some DNA. */
-public class Allele {
+public class Allele implements Serializable {
 
   static final Allele DEFAULT = new Allele();
   static final Allele MINOR = new Allele();

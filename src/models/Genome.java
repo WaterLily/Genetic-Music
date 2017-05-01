@@ -4,6 +4,7 @@ import static utils.Utils.checkNotNull;
 
 import models.Model.SimpleNote;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Random;
 import java.util.Set;
 
 /** Stores the DNA of a single monster. */ //TODO: make serializable
-class Genome { //fixme test
+class Genome implements Serializable { //fixme test
   private List<TransformChromosome> transformations;
   private PatternChromosome melodies;
 
@@ -49,7 +50,7 @@ class Genome { //fixme test
     return melodies.present();
   }
 
-  private static abstract class Chromosome<E, A> { //fixme decide if this polymorphism is needed
+  private static abstract class Chromosome<E, A> implements Serializable { //fixme decide if this polymorphism is needed
     protected final E one;
     protected final E two;
 
@@ -131,7 +132,7 @@ class Genome { //fixme test
     }
   }
 
-  static class MelodyBase { // TODO try to deprecate
+  static class MelodyBase implements Serializable { // TODO try to deprecate
     final SimpleNote note;
     private MelodyBase next;
 
