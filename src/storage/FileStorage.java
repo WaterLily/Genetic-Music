@@ -33,7 +33,7 @@ public class FileStorage implements StorageService {
     } catch (IOException | ClassNotFoundException e) {
       e.printStackTrace();
     }
-    return creatures.isEmpty() ? new RandomStorage().loadMonsters() : creatures;
+    return creatures.isEmpty() ? new RandomStorage().loadMonsters() : creatures; // temporary
   }
 
   @Override

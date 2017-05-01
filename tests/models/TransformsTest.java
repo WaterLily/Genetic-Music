@@ -27,8 +27,9 @@ public class TransformsTest {
     List<Note> original = Arrays.asList(new Note(C4, 1), new Note(E4, 0.5), new Note(G4, 2));
     List<Note> expected = Arrays.asList(new Note(A4, 1), new Note(C5, 0.5), new Note(E5, 2));
 
-    assertListEquals(new Transforms.DiatonicTranspose(C4, RELATIVE_MINOR_SCALE_OFFSET)
-        .transform(original), expected);
+    assertListEquals(
+        expected,
+        new Transforms.DiatonicTranspose(C4, RELATIVE_MINOR_SCALE_OFFSET).transform(original));
   }
 
   @Test
@@ -36,21 +37,23 @@ public class TransformsTest {
     List<Note> original = Arrays.asList(new Note(C4, 1), new Note(E4, 0.5), new Note(G4, 2));
     List<Note> expected = Arrays.asList(new Note(A4, 1), new Note(CS5, 0.5), new Note(E5, 2));
 
-    assertListEquals(new Transforms.Transpose(9).transform(original), expected);
+    assertListEquals(expected, new Transforms.Transpose(9).transform(original));
   }
 
   @Test
   public void testShift() {
     List<Note> original = Arrays.asList(new Note(C4, 1), new Note(E4, 0.5), new Note(G4, 2));
-    List<Note> expected =
+    List<Note> leftExpected =
         Arrays.asList(new Note(C4, 0.75), new Note(E4, 0.5), new Note(G4, 2), new Note(C4, 0.25));
+    List<Note> rightExpected =
+        Arrays.asList(new Note(G4, 0.5), new Note(C4, 1), new Note(E4, 0.5), new Note(G4, 1.5));
 
-    assertListEquals(new Transforms.Shift(true).transform(original), expected);
-    // todo test other direction
+    assertListEquals(leftExpected, new Transforms.Shift(-1).transform(original));
+    assertListEquals(rightExpected, new Transforms.Shift(2).transform(original));
   }
 
-  private void assertListEquals(List<Note> actual, List<Note> expected) {
-    assertEquals(listToString(actual), listToString(expected));
+  private void assertListEquals(List<Note> expected, List<Note> actual) {
+    assertEquals(listToString(expected), listToString(actual));
   }
 
   private String listToString(List<Note> notes) {

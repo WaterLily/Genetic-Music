@@ -30,12 +30,6 @@ public class Monster implements Serializable {
     constructSong();
   }
 
-  //TODO remove after real storage is built
-  public Monster(Model.SimpleNote[] notes1, Model.SimpleNote[] notes2) {
-    this(Gamete.builder().setMelody(makeMelodyBases(notes1)).build(),
-        Gamete.builder().setMelody(makeMelodyBases(notes2)).build());
-  }
-
   // Visible for testing
   void setRandom(Random random) {
     this.random = random;
@@ -79,15 +73,5 @@ public class Monster implements Serializable {
     Gamete one = parent1.makeGamete();
     Gamete two = parent2.makeGamete();
     return new Monster(one, two);
-  }
-
-  private static MelodyBase makeMelodyBases(Model.SimpleNote[] notes) {
-    MelodyBase last = null;
-    for (int i = notes.length - 1; i >= 0; i--) {
-      MelodyBase base = new MelodyBase(notes[i]);
-      base.setNext(last);
-      last = base;
-    }
-    return last;
   }
 }

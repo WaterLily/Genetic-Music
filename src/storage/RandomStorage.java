@@ -1,11 +1,13 @@
 package storage;
 
 import jm.constants.Pitches;
+import models.Gamete;
 import models.Model;
 import models.Monster;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class RandomStorage implements StorageService {
 
@@ -17,24 +19,11 @@ public class RandomStorage implements StorageService {
 
   public List<Monster> loadMonsters() {
     List<Monster> monsters = new ArrayList<>();
-
+    Random random = new Random();
     for (int j = 0; j < NUM_MONSTERS; j++) {
-
-      Model.SimpleNote[] notes1 = new Model.SimpleNote[MCL];
-      Model.SimpleNote[] notes2 = new Model.SimpleNote[MCL];
-
-      for (int i = 0; i < MCL; i++) {
-        notes1[i] = new Model.SimpleNote(cPitches[(int) (Math.random() * cPitches.length)], LENGTH);
-        notes2[i] = new Model.SimpleNote(cPitches[(int) (Math.random() * cPitches.length)], LENGTH);
-      }
-
-      Monster monster1 = new Monster(notes1, notes2);
-
-      monsters.add(monster1);
+      monsters.add(new Monster(Gamete.generate(random), Gamete.generate(random)));
     }
-
     return monsters;
-
   }
 
   @Override
