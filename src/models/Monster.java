@@ -31,8 +31,9 @@ public class Monster implements Serializable {
   }
 
   // Visible for testing
-  void setRandom(Random random) {
+  Monster setRandom(Random random) {
     this.random = random;
+    return this;
   }
 
   public Melody getMelody() {
@@ -45,17 +46,12 @@ public class Monster implements Serializable {
       notes.add(new Note(note.pitch, WHOLE_NOTE / (double) note.fraction));
     }
     for (Transforms.Transform transform : genes.getTransforms()) {
-      transform.transform(notes);
-    }
-
-    if (Integer.parseInt(getName()) % 2 == 0) {
-      System.out.println("transforming " + getName());
-      notes = new Transforms.DiatonicTranspose(0, 5).transform(notes);
-      notes = new Transforms.Shift(true).transform(notes);
+      notes = transform.transform(notes);
     }
 
     song = new Melody(getName(), notes);
   }
+
   public String getName() {
     return hashCode() + "";
   }

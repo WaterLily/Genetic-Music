@@ -1,5 +1,6 @@
 package models;
 
+import static jm.constants.Durations.SIXTEENTH_NOTE;
 import static jm.constants.Pitches.A4;
 import static jm.constants.Pitches.C4;
 import static jm.constants.Pitches.C5;
@@ -48,8 +49,8 @@ public class TransformsTest {
     List<Note> rightExpected =
         Arrays.asList(new Note(G4, 0.5), new Note(C4, 1), new Note(E4, 0.5), new Note(G4, 1.5));
 
-    assertListEquals(leftExpected, new Transforms.Shift(-1).transform(original));
-    assertListEquals(rightExpected, new Transforms.Shift(2).transform(original));
+    assertListEquals(leftExpected, new Transforms.Shift(-SIXTEENTH_NOTE).transform(original));
+    assertListEquals(rightExpected, new Transforms.Shift(2 * SIXTEENTH_NOTE).transform(original));
   }
 
   private void assertListEquals(List<Note> expected, List<Note> actual) {

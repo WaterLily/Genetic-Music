@@ -20,13 +20,13 @@ enum Locus {
   TIME_OFFSET  {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
-      if (a1 instanceof Allele.IntAllele && a2 instanceof Allele.IntAllele) {
-        return getExpression(((Allele.IntAllele) a1).i, ((Allele.IntAllele) a2).i);
+      if (a1 instanceof Allele.DoubleAllele && a2 instanceof Allele.DoubleAllele) {
+        return getExpression(((Allele.DoubleAllele) a1).d, ((Allele.DoubleAllele) a2).d);
       }
       throw new IllegalArgumentException();
     }
 
-    private Transforms.Transform getExpression(int x, int y) {
+    private Transforms.Transform getExpression(double x, double y) {
       if (x * y <= 0) {
         return new Transforms.Identity();
       } else {

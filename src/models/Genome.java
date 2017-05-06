@@ -25,7 +25,7 @@ class Genome implements Serializable { //fixme test
     for (Locus locus : loci) { //TODO gracefully handle null alleles
       transformations.add(
           new TransformChromosome(
-              locus, one.transformAleles.get(locus), one.transformAleles.get(locus)));
+              locus, one.transformAleles.get(locus), two.transformAleles.get(locus)));
     }
   }
 
@@ -68,7 +68,7 @@ class Genome implements Serializable { //fixme test
 
     PatternChromosome(MelodyBase one, MelodyBase two, Random random) {
       super(one, two);
-      swap = random.nextDouble() < 0.5;
+      swap = false; //random.nextDouble() < 0.5; //fixme
     }
 
     @Override
@@ -101,8 +101,8 @@ class Genome implements Serializable { //fixme test
     @Override
     List<SimpleNote> present() {
       List<SimpleNote> notes = new ArrayList<>();
-      MelodyBase first = swap ? one : two;
-      MelodyBase second = swap ? two : one;
+      MelodyBase first = swap ? two : one;
+      MelodyBase second = swap ? one : two;
       for (MelodyBase base = first; base != null; base = base.next()) {
         notes.add(base.note);
       }

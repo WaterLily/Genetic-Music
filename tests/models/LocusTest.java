@@ -30,11 +30,11 @@ public class LocusTest {
 
   @Test
   public void testTimeOffset() {
-    Allele.IntAllele w = new Allele.IntAllele(2);
-    Allele.IntAllele x = new Allele.IntAllele(3);
-    Allele.IntAllele y = new Allele.IntAllele(-2);
-    Allele.IntAllele z = new Allele.IntAllele(-3);
-    Allele.IntAllele zero = new Allele.IntAllele(0);
+    Allele.DoubleAllele w = new Allele.DoubleAllele(2);
+    Allele.DoubleAllele x = new Allele.DoubleAllele(3);
+    Allele.DoubleAllele y = new Allele.DoubleAllele(-2);
+    Allele.DoubleAllele z = new Allele.DoubleAllele(-3);
+    Allele.DoubleAllele zero = new Allele.DoubleAllele(0);
 
     testExpression(TIME_OFFSET, w, x, new Transforms.Shift(2));
     testExpression(TIME_OFFSET, y, z, new Transforms.Shift(-2));

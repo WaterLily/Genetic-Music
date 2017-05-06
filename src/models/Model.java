@@ -56,7 +56,7 @@ public class Model {
       int octave = (pitch / 12) - 1;
       int noteIndex = (pitch % 12);
       String note = noteString[noteIndex];
-      return note + octave;
+      return note + octave + "(" + fraction + ")";
     }
 
     @Override

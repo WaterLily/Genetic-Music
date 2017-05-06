@@ -1,5 +1,6 @@
 package models;
 
+import static jm.constants.Durations.SIXTEENTH_NOTE;
 import static models.Constants.TONES_IN_SCALE;
 import static utils.Utils.checkNotNull;
 
@@ -50,7 +51,7 @@ public class Gamete {
     }
   }
 
-  public static Gamete generate(Random random) { // TODO make more flexible //fixme test
+  public static Gamete generate(Random random) { // TODO make more flexible
     Builder builder = builder();
     int[] pitchOptions = new int[12];
     pitchOptions[0] = pitchOptions[1] = Pitches.REST;
@@ -71,12 +72,14 @@ public class Gamete {
           new Model.SimpleNote(pitchOptions[(int) (Math.random() * pitchOptions.length)], LENGTH);
     }
     builder.setMelody(makeMelodyBases(notes));
-    builder.addAllele(Locus.TIME_OFFSET, new Allele.IntAllele(random.nextDouble() < 0.5 ? -1 : 0));
+    builder.addAllele(
+        Locus.TIME_OFFSET,
+        new Allele.DoubleAllele(random.nextDouble() < 0.5 ? -SIXTEENTH_NOTE : 0));
 
     return builder.build();
   }
 
-  private static Genome.MelodyBase makeMelodyBases(Model.SimpleNote[] notes) {
+  static Genome.MelodyBase makeMelodyBases(Model.SimpleNote[] notes) {
     Genome.MelodyBase last = null;
     for (int i = notes.length - 1; i >= 0; i--) {
       Genome.MelodyBase base = new Genome.MelodyBase(notes[i]);

@@ -1,7 +1,5 @@
 package models;
 
-import static jm.constants.Durations.SIXTEENTH_NOTE;
-
 import jm.constants.Scales;
 import jm.music.data.Note;
 import jm.music.data.Phrase;
@@ -21,7 +19,7 @@ class Transforms {
     @Override
     public abstract boolean equals(Object other);
 
-    void checkLength(List<Note> original, List<Note> result) {
+    static void checkLength(List<Note> original, List<Note> result) {
       if (length(original) != length(result)) {
         throw new RuntimeException("The transformation changed the length.");
       }
@@ -93,34 +91,56 @@ class Transforms {
   }
 
   static class Shift extends Transform {
-    private final int shift; //fixme use
+    private final double shift;
+    private final boolean right;
 
     /**
-     * @param shift The number of sixteenth-notes to shift.  Positive shifts to the right, Negative
+     * @param shift The rhythm-value to shift.  Positive shifts to the right, Negative
      *              to the left.
      */
-    Shift(int shift) {
-      this.shift = shift;
-    }
-
-    Shift(boolean unused) {
-      this.shift = -11;
+    Shift(double shift) {
+      this.right = shift > 0;
+      this.shift = Math.abs(shift);
     }
 
     @Override
-    List<Note> transform(List<Note> notes) {
-      List<Note> result = new ArrayList<>(notes);
-      // Assume shifting left by 1/16th note for now
-      Note cut = result.remove(0);
-      Note paste = new Note(cut.getPitch(), SIXTEENTH_NOTE);
-      result.add(result.size(), paste);
-      double leftover = cut.getRhythmValue() - SIXTEENTH_NOTE;
-      if (leftover > 0) {
-        Note remainder = new Note(cut.getPitch(), leftover);
-        result.add(0, remainder);
+    List<Note> transform(List<Note> input) {
+      List<Note> result = new ArrayList<>(input);
+      double cutLength = 0;
+      while(cutLength < shift) {
+        cutLength += getFromSource(result).getRhythmValue();
+        addToDest(result, removeFromSource(result));
       }
-      checkLength(notes, result);
+      double overShoot = cutLength - shift;
+      if (overShoot > 0) { // Put part of the last moved note back where it came from
+        Note split =  removeFromDest(result);
+        Note forDest = new Note(split.getPitch(), split.getRhythmValue() - overShoot);
+        addToDest(result, forDest);
+        Note forSource = new Note(split.getPitch(), overShoot);
+        addToSource(result, forSource);
+      }
+      checkLength(input, result);
       return result;
+    }
+
+    private Note getFromSource(List<Note> notes) {
+      return notes.get(right ? notes.size() - 1 : 0);
+    }
+
+    private Note removeFromDest(List<Note> notes) {
+      return notes.remove(right ? 0 : notes.size() - 1);
+    }
+
+    private Note removeFromSource(List<Note> notes) {
+      return notes.remove(right ? notes.size() - 1 : 0);
+    }
+
+    private void addToSource(List<Note> notes, Note note) {
+      notes.add(right ? notes.size() : 0, note);
+    }
+
+    private void addToDest(List<Note> notes, Note note) {
+      notes.add(right ? 0 : notes.size(), note);
     }
 
     @Override
