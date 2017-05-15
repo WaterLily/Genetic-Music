@@ -1,11 +1,14 @@
 package models;
 
+import static jm.constants.Durations.EIGHTH_NOTE;
+import static jm.constants.Pitches.REST;
 import static utils.Utils.checkNotNull;
 
 import models.Model.SimpleNote;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -68,22 +71,97 @@ class Genome implements Serializable { //fixme test
 
     PatternChromosome(List<SimpleNote> one, List<SimpleNote> two, Random random) {
       super(one, two);
-      swap = false; //random.nextDouble() < 0.5; //fixme
+      swap = random.nextDouble() < 0.5;
     }
 
     @Override
-    List<SimpleNote> meiosis(Random random) { // TODO: recombination
-      return one;
+    List<SimpleNote> meiosis(Random random) { // TODO test
+      double firstLength = length(one);
+      double secondLength = length(two);
+      int numEights = numEights(swap ? firstLength : secondLength);
+      int[] firstPitches = pitches(one, numEights);
+      int[] secondPitches = pitches(two, numEights);
+      System.out.println(numEights);
+      System.out.println(firstPitches[0]);
+      List<SimpleNote> childNotes = new ArrayList<>();
+      List<Integer> breakPointers = mergedBreakPoints(one, two, random);
+      if (!breakPointers.contains(numEights)) {
+        breakPointers.add(numEights);
+      }
+      System.out.println(breakPointers);
+      for (int i = 0; i < breakPointers.size() - 1; i++) {
+        List<Integer> pitchChoices = new ArrayList<>();
+        for (int j = breakPointers.get(i); j < breakPointers.get(i+1); j++) {
+          pitchChoices.add(firstPitches[j]);
+          pitchChoices.add(secondPitches[j]);
+        }
+        childNotes.add(
+            new SimpleNote(
+                pitchChoices.get(random.nextInt(pitchChoices.size())),
+                (breakPointers.get(i+1) - breakPointers.get(i)) * EIGHTH_NOTE));
+      }
+      System.out.println(childNotes);
+      return childNotes;
+    }
+
+    private List<Integer> mergedBreakPoints(
+        List<SimpleNote> notes1, List<SimpleNote> notes2, Random random) {
+      Set<Integer> breaks1 = breakPoints(notes1);
+      Set<Integer> breaks2 = breakPoints(notes2);
+      List<Integer> finalBreaks = new ArrayList<>();
+      for (int point : breaks1) {
+        if (breaks2.contains(point) || random.nextBoolean()) {
+          finalBreaks.add(point);
+        }
+      }
+      Collections.sort(finalBreaks);
+      return finalBreaks;
+    }
+
+    private Set<Integer> breakPoints(List<SimpleNote> notes) {
+      Set<Integer> breaks = new HashSet<>();
+      breaks.add(0);
+      int progress = 0;
+      for (SimpleNote note : notes) {
+        progress += numEights(note.length);
+        breaks.add(progress);
+      }
+      return breaks;
+    }
+
+    private int[] pitches(List<SimpleNote> notes, int arrayLength) {
+      int[] array = new int[arrayLength];
+      int progress = 0;
+      for (SimpleNote note : notes) {
+        int bound = progress + numEights(note.length);
+        for (; progress < bound; progress++) {
+          array[progress] = note.pitch;
+        }
+      }
+      for (int i = progress; i < array.length; i++) {
+        array[i] = REST;
+      }
+      return array;
+    }
+
+    private int numEights(double length) {
+      return (int) ((length + 0.01) / EIGHTH_NOTE);
     }
 
     @Override
     List<SimpleNote> present() {
       List<SimpleNote> notes = new ArrayList<>();
-      List<SimpleNote> first = swap ? two : one;
-      List<SimpleNote> second = swap ? one : two;
-      notes.addAll(first);
-      notes.addAll(second);
+      notes.addAll(swap ? two : one);
+      notes.addAll(swap ? one : two);
       return notes;
+    }
+
+    private double length(List<SimpleNote> notes) {
+      double total = 0;
+      for (SimpleNote note : notes) {
+        total += note.length;
+      }
+      return total;
     }
   }
 
