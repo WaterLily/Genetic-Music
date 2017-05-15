@@ -42,7 +42,7 @@ public class Monster implements Serializable {
   private void constructSong() {
     List<Note> notes = new ArrayList<>();
     for (SimpleNote note : genes.getMelody()) {
-      notes.add(new Note(note.pitch, WHOLE_NOTE / (double) note.length));
+      notes.add(new Note(note.pitch, note.length));
     }
     for (Transforms.Transform transform : genes.getTransforms()) {
       notes = transform.transform(notes);

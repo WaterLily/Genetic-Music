@@ -40,9 +40,9 @@ public class Model {
     }
   }
 
-  public static class SimpleNote implements Serializable {
-    public final int pitch; // 60 = Middle C
-    public final double length; // 1 = quarter note
+  static class SimpleNote implements Serializable {
+    final int pitch; // 60 = Middle C
+    final double length; // 1 = quarter note
 
     public SimpleNote(int pitch, double length) {
       this.pitch = pitch;
@@ -51,12 +51,15 @@ public class Model {
 
     @Override
     public String toString() {
-      if (pitch <= 0) return "--";
-
-      int octave = (pitch / 12) - 1;
-      int noteIndex = (pitch % 12);
-      String note = noteString[noteIndex];
-      return note + octave + "(" + length + ")";
+      String note;
+      if (pitch <= 0) {
+        note = "--";
+      } else {
+        int octave = (pitch / 12) - 1;
+        int noteIndex = (pitch % 12);
+        note = noteString[noteIndex] + octave;
+      }
+      return note + "(" + length + ")";
     }
 
     @Override
