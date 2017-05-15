@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-/** Stores the DNA of a single monster. */ //TODO: make serializable
+/** Stores the DNA of a single monster. */
 class Genome implements Serializable { //fixme test
   private List<TransformChromosome> transformations;
   private PatternChromosome melodies;
@@ -63,52 +63,26 @@ class Genome implements Serializable { //fixme test
     abstract A present();
   }
 
-  private static class PatternChromosome extends Chromosome<MelodyBase, List<SimpleNote>> {
+  private static class PatternChromosome extends Chromosome<List<SimpleNote>, List<SimpleNote>> {
     private final boolean swap;
 
-    PatternChromosome(MelodyBase one, MelodyBase two, Random random) {
+    PatternChromosome(List<SimpleNote> one, List<SimpleNote> two, Random random) {
       super(one, two);
       swap = false; //random.nextDouble() < 0.5; //fixme
     }
 
     @Override
-    MelodyBase meiosis(Random random) {
-      boolean r = random.nextDouble() < 0.5;
-      MelodyBase first = r ? one : two;
-      MelodyBase second = r ? two : one;
-      MelodyBase fakeBase = new MelodyBase(new SimpleNote(-1, 8));
-      addNotes(fakeBase, first, second, random);
-      return fakeBase.next();
-    }
-
-    private void addNotes(MelodyBase base, MelodyBase current, MelodyBase other, Random random) {
-      // TODO support differing lengths
-      if (current == null) {
-        return;
-      } else {
-        base.setNext(new MelodyBase(current.note));
-      }
-      boolean cross = random.nextDouble() < getCrossoverChance(current, other);
-      MelodyBase first = cross ? other : current;
-      MelodyBase second = cross ? current : other;
-      addNotes(base.next(), first.next(), second.next(), random);
-    }
-
-    private double getCrossoverChance(MelodyBase one, MelodyBase two) {
-      return 0.25;
+    List<SimpleNote> meiosis(Random random) { // TODO: recombination
+      return one;
     }
 
     @Override
     List<SimpleNote> present() {
       List<SimpleNote> notes = new ArrayList<>();
-      MelodyBase first = swap ? two : one;
-      MelodyBase second = swap ? one : two;
-      for (MelodyBase base = first; base != null; base = base.next()) {
-        notes.add(base.note);
-      }
-      for (MelodyBase base = second; base != null; base = base.next()) {
-        notes.add(base.note);
-      }
+      List<SimpleNote> first = swap ? two : one;
+      List<SimpleNote> second = swap ? one : two;
+      notes.addAll(first);
+      notes.addAll(second);
       return notes;
     }
   }
@@ -129,32 +103,6 @@ class Genome implements Serializable { //fixme test
     @Override
     Transforms.Transform present() {
       return locus.getExpression(one, two);
-    }
-  }
-
-  static class MelodyBase implements Serializable { // TODO try to deprecate
-    final SimpleNote note;
-    private MelodyBase next;
-
-    MelodyBase(SimpleNote note) {
-      this.note = note;
-    }
-
-    MelodyBase setNext(MelodyBase next) {
-      this.next = next;
-      return this;
-    }
-
-    MelodyBase next() {
-      return next;
-    }
-
-    public String toString() {
-      String result = note.toString();
-      if (next != null) {
-        result += " " + next.toString();
-      }
-      return result;
     }
   }
 

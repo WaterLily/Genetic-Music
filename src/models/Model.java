@@ -42,11 +42,11 @@ public class Model {
 
   public static class SimpleNote implements Serializable {
     public final int pitch; // 60 = Middle C
-    public final int fraction; // 4 = quarter note
+    public final double length; // 1 = quarter note
 
-    public SimpleNote(int pitch, int fraction) {
+    public SimpleNote(int pitch, double length) {
       this.pitch = pitch;
-      this.fraction = fraction;
+      this.length = length;
     }
 
     @Override
@@ -56,14 +56,14 @@ public class Model {
       int octave = (pitch / 12) - 1;
       int noteIndex = (pitch % 12);
       String note = noteString[noteIndex];
-      return note + octave + "(" + fraction + ")";
+      return note + octave + "(" + length + ")";
     }
 
     @Override
     public boolean equals(Object other) {
       return other instanceof SimpleNote
           && this.pitch == ((SimpleNote) other).pitch
-          && this.fraction == ((SimpleNote) other).fraction;
+          && Double.compare(this.length, ((SimpleNote) other).length) == 0;
     }
   }
 

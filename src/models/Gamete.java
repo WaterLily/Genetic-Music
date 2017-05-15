@@ -1,22 +1,30 @@
 package models;
 
-import static jm.constants.Durations.SIXTEENTH_NOTE;
+import static jm.constants.Durations.DOTTED_HALF_NOTE;
+import static jm.constants.Durations.EIGHTH_NOTE;
+import static jm.constants.Durations.HALF_NOTE;
+import static jm.constants.Durations.QUARTER_NOTE;
+import static jm.constants.Durations.WHOLE_NOTE;
 import static models.Constants.TONES_IN_SCALE;
 import static utils.Utils.checkNotNull;
 
 import jm.constants.Pitches;
 import jm.constants.Scales;
+import models.Model.SimpleNote;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 /** Models a haploid monster cell. */
 public class Gamete {
   final Map<Locus, Allele> transformAleles;
-  final Genome.MelodyBase melodyAlleles;
+  final List<SimpleNote> melodyAlleles;
 
-  private Gamete(Map<Locus, Allele> transformAleles, Genome.MelodyBase melodyAlleles) {
+  private Gamete(Map<Locus, Allele> transformAleles, List<SimpleNote> melodyAlleles) {
     this.transformAleles = transformAleles;
     this.melodyAlleles = melodyAlleles;
   }
@@ -27,10 +35,15 @@ public class Gamete {
 
   static final class Builder {
     private Map<Locus, Allele> transformAlleles;
-    private Genome.MelodyBase melodyAlleles;
+    private List<SimpleNote> melodyAlleles;
 
-    Builder setMelody(Genome.MelodyBase melodyAlleles) {
+    Builder setMelody(List<SimpleNote> melodyAlleles) {
       this.melodyAlleles = checkNotNull(melodyAlleles);
+      return this;
+    }
+
+    Builder setMelody(SimpleNote[] melodyAlleles) {
+      this.melodyAlleles = Arrays.asList(checkNotNull(melodyAlleles));
       return this;
     }
 
@@ -53,39 +66,79 @@ public class Gamete {
 
   public static Gamete generate(Random random) { // TODO make more flexible
     Builder builder = builder();
-    int[] pitchOptions = new int[12];
-    pitchOptions[0] = pitchOptions[1] = Pitches.REST;
-    int offset = 2;
-    for (int i = 0; i < pitchOptions.length; i++) {
+    int measures = 1;
+    int beatsPerMeasure = 3;
+
+    List<SimpleNote> notes = new ArrayList<>();
+
+    for (int i = 0; i < measures; i++) {
+      notes.addAll(randomMeasure(beatsPerMeasure, random));
+    }
+
+    builder.setMelody(notes);
+//    builder.addAllele(
+//        Locus.TIME_OFFSET,
+//        new Allele.DoubleAllele(random.nextDouble() < 0.5 ? -SIXTEENTH_NOTE : 0));
+
+    return builder.build();
+  }
+
+  private static int getRandomPitch(Random random) {
+    int[] pitchOptions = new int[8];
+    pitchOptions[0] = Pitches.REST;
+    int offset = 1;
+    for (int i = 0; i < pitchOptions.length - offset; i++) {
       pitchOptions[i + offset] =
           Scales.MAJOR_SCALE[i % Scales.MAJOR_SCALE.length]
               + Pitches.C4
               + ((i/Scales.MAJOR_SCALE.length) * TONES_IN_SCALE);
     }
-
-    int MCL = 4; // measure length
-    int LENGTH = 4; // quarter notes
-    Model.SimpleNote[] notes = new Model.SimpleNote[MCL];
-
-    for (int i = 0; i < MCL; i++) {
-      notes[i] =
-          new Model.SimpleNote(pitchOptions[(int) (Math.random() * pitchOptions.length)], LENGTH);
-    }
-    builder.setMelody(makeMelodyBases(notes));
-    builder.addAllele(
-        Locus.TIME_OFFSET,
-        new Allele.DoubleAllele(random.nextDouble() < 0.5 ? -SIXTEENTH_NOTE : 0));
-
-    return builder.build();
+    return pitchOptions[random.nextInt(pitchOptions.length)];
   }
 
-  static Genome.MelodyBase makeMelodyBases(Model.SimpleNote[] notes) {
-    Genome.MelodyBase last = null;
-    for (int i = notes.length - 1; i >= 0; i--) {
-      Genome.MelodyBase base = new Genome.MelodyBase(notes[i]);
-      base.setNext(last);
-      last = base;
+  private static List<SimpleNote> randomMeasure(double beatsPerMeasure, Random random) {
+    double length = 0;
+    List<NoteChoice> noteTypes = new ArrayList<>();
+    List<SimpleNote> notes = new ArrayList<>();
+    while (length < beatsPerMeasure) {
+      System.out.println(length + ", " + beatsPerMeasure);
+      NoteChoice noteChoice = NoteChoice.getRandom(beatsPerMeasure - length, random);
+      noteTypes.add(noteChoice);
+      length += noteChoice.length * noteChoice.count;
     }
-    return last;
+    while (noteTypes.size() > 0) {
+      NoteChoice noteChoice = noteTypes.remove(random.nextInt(noteTypes.size()));
+      for (int i = 0; i < noteChoice.count; i++) {
+        int pitch = getRandomPitch(random);
+        notes.add(new SimpleNote(pitch, noteChoice.length));
+      }
+    }
+    return notes;
+  }
+
+  private enum NoteChoice {
+    TWO_EIGHTHS(2, EIGHTH_NOTE), QUARTER(1, QUARTER_NOTE), HALF(1, HALF_NOTE),
+    THREE_QUARTER(1, DOTTED_HALF_NOTE), WHOLE(1, WHOLE_NOTE);
+
+    private final int count;
+    private final double length;
+
+    NoteChoice(int count, double length) {
+      this.count = count;
+      this.length = length;
+    }
+
+    static NoteChoice getRandom(double cap, Random random) {
+      if (cap < TWO_EIGHTHS.length) {
+        throw new IllegalArgumentException();
+      }
+      int capIndex = 0;
+      for (; capIndex < values().length; capIndex++) {
+        if (values()[capIndex].length * values()[capIndex].count > cap) {
+          break;
+        }
+      }
+      return values()[random.nextInt(capIndex)];
+    }
   }
 }

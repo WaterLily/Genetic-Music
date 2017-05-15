@@ -9,7 +9,6 @@ import static jm.constants.Durations.WHOLE_NOTE;
 import static utils.Utils.checkNotNull;
 
 import jm.music.data.Note;
-import models.Genome.MelodyBase;
 import models.Model.Melody;
 import models.Model.SimpleNote;
 
@@ -43,7 +42,7 @@ public class Monster implements Serializable {
   private void constructSong() {
     List<Note> notes = new ArrayList<>();
     for (SimpleNote note : genes.getMelody()) {
-      notes.add(new Note(note.pitch, WHOLE_NOTE / (double) note.fraction));
+      notes.add(new Note(note.pitch, WHOLE_NOTE / (double) note.length));
     }
     for (Transforms.Transform transform : genes.getTransforms()) {
       notes = transform.transform(notes);
