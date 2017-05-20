@@ -27,7 +27,7 @@ public class Model {
   }
 
   public static class Melody implements Serializable {
-    public final String name;
+    public String name; // fixme make setter/getter
     public final List<Note> notes;
 
     public Melody(String name, List<Note> notes) {

@@ -6,6 +6,7 @@ import jm.music.data.Phrase;
 import jm.music.data.Score;
 import jm.music.tools.Mod;
 import jm.util.Play;
+import jm.util.Write;
 import models.Model;
 
 import java.util.List;
@@ -29,8 +30,9 @@ public class JMusicOfflineService implements MusicService {
         score.add(new Part(makePhrase(part.notes)));
       }
     }
-    Mod.repeat(score, 2);
+//    Mod.repeat(score, 2);
     play(score);
+    Write.midi(score); // fixme make a controlled action
   }
 
   @Override

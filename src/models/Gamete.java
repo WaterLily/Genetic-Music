@@ -23,10 +23,12 @@ import java.util.Random;
 public class Gamete {
   final Map<Locus, Allele> transformAleles;
   final List<SimpleNote> melodyAlleles;
+  final List<Chord> chordAlleles;
 
-  private Gamete(Map<Locus, Allele> transformAleles, List<SimpleNote> melodyAlleles) {
+  private Gamete(Map<Locus, Allele> transformAleles, List<SimpleNote> melodyAlleles, List<Chord> chordAlleles) {
     this.transformAleles = transformAleles;
     this.melodyAlleles = melodyAlleles;
+    this.chordAlleles = chordAlleles;
   }
 
   static Builder builder() {
@@ -36,6 +38,7 @@ public class Gamete {
   static final class Builder {
     private Map<Locus, Allele> transformAlleles;
     private List<SimpleNote> melodyAlleles;
+    private List<Chord> chordAlleles;
 
     Builder setMelody(List<SimpleNote> melodyAlleles) {
       this.melodyAlleles = checkNotNull(melodyAlleles);
@@ -44,6 +47,16 @@ public class Gamete {
 
     Builder setMelody(SimpleNote[] melodyAlleles) {
       this.melodyAlleles = Arrays.asList(checkNotNull(melodyAlleles));
+      return this;
+    }
+
+    public Builder setChords(List<Chord> chordAlleles) {
+      this.chordAlleles = checkNotNull(chordAlleles);
+      return this;
+    }
+
+    Builder setChords(Chord[] chordAlleles) {
+      this.chordAlleles = Arrays.asList(checkNotNull(chordAlleles));
       return this;
     }
 
@@ -56,7 +69,10 @@ public class Gamete {
       if (melodyAlleles == null) {
         throw new IllegalStateException("Missing required field: melody");
       }
-      return new Gamete(transformAlleles, melodyAlleles);
+      if (chordAlleles == null) {
+        throw new IllegalStateException("Missing required field: chords");
+      }
+      return new Gamete(transformAlleles, melodyAlleles, chordAlleles);
     }
 
     private Builder() {
@@ -76,6 +92,8 @@ public class Gamete {
     }
 
     builder.setMelody(notes);
+    builder.setChords(
+        Chord.Progressions.values()[random.nextInt(Chord.Progressions.values().length)].chords);
 //    builder.addAllele(
 //        Locus.TIME_OFFSET,
 //        new Allele.DoubleAllele(random.nextDouble() < 0.5 ? -SIXTEENTH_NOTE : 0));
@@ -101,7 +119,6 @@ public class Gamete {
     List<NoteChoice> noteTypes = new ArrayList<>();
     List<SimpleNote> notes = new ArrayList<>();
     while (length < beatsPerMeasure) {
-      System.out.println(length + ", " + beatsPerMeasure);
       NoteChoice noteChoice = NoteChoice.getRandom(beatsPerMeasure - length, random);
       noteTypes.add(noteChoice);
       length += noteChoice.length * noteChoice.count;

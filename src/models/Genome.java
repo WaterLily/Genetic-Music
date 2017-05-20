@@ -15,12 +15,14 @@ import java.util.Random;
 import java.util.Set;
 
 /** Stores the DNA of a single monster. */
-class Genome implements Serializable { //fixme test
-  private List<TransformChromosome> transformations;
-  private PatternChromosome melodies;
+class Genome implements Serializable {
+  private final PatternChromosome melodies;
+  private final ChordChromosome chords;
+  private final List<TransformChromosome> transformations;
 
   public Genome(Gamete one, Gamete two) {
     melodies = new PatternChromosome(one.melodyAlleles, two.melodyAlleles, new Random()); //fixme random
+    chords = new ChordChromosome(one.chordAlleles, two.chordAlleles, new Random());
     transformations = new ArrayList<>();
     Set<Locus> loci = new HashSet<>();
     loci.addAll(one.transformAleles.keySet());
@@ -38,6 +40,7 @@ class Genome implements Serializable { //fixme test
       builder.addAllele(transformation.locus, transformation.meiosis(random));
     }
     builder.setMelody(melodies.meiosis(random));
+    builder.setChords(chords.meiosis(random));
     return builder.build();
   }
 
@@ -53,6 +56,10 @@ class Genome implements Serializable { //fixme test
     return melodies.present();
   }
 
+  List<Chord> getChords() {
+    return chords.present();
+  }
+
   private static abstract class Chromosome<E, A> implements Serializable { //fixme decide if this polymorphism is needed
     protected final E one;
     protected final E two;
@@ -66,12 +73,31 @@ class Genome implements Serializable { //fixme test
     abstract A present();
   }
 
+  private static class ChordChromosome extends Chromosome<List<Chord>, List<Chord>> {
+    private final boolean swap;
+
+    ChordChromosome(List<Chord> one, List<Chord> two, Random random) {
+      super(one, two);
+      swap = random.nextBoolean();
+    }
+
+    @Override
+    List<Chord> meiosis(Random random) { // TODO recombination
+      return random.nextBoolean() ? one : two;
+    }
+
+    @Override
+    List<Chord> present() { // TODO combine?
+      return swap ? one : two;
+    }
+  }
+
   private static class PatternChromosome extends Chromosome<List<SimpleNote>, List<SimpleNote>> {
     private final boolean swap;
 
     PatternChromosome(List<SimpleNote> one, List<SimpleNote> two, Random random) {
       super(one, two);
-      swap = random.nextDouble() < 0.5;
+      swap = random.nextBoolean();
     }
 
     @Override
@@ -111,6 +137,11 @@ class Genome implements Serializable { //fixme test
       List<Integer> finalBreaks = new ArrayList<>();
       for (int point : breaks1) {
         if (breaks2.contains(point) || random.nextBoolean()) {
+          finalBreaks.add(point);
+        }
+      }
+      for (int point : breaks2) {
+        if (!breaks1.contains(point) && random.nextBoolean()) {
           finalBreaks.add(point);
         }
       }

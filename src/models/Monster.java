@@ -2,15 +2,20 @@ package models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 import static jm.constants.Durations.WHOLE_NOTE;
+import static jm.constants.Pitches.C4;
 import static utils.Utils.checkNotNull;
+import static utils.Utils.deepClone;
 
 import jm.music.data.Note;
 import models.Model.Melody;
 import models.Model.SimpleNote;
+import models.Transforms.DiatonicTranspose;
 
 /** Models a singing creature. */
 public class Monster implements Serializable {
@@ -36,14 +41,21 @@ public class Monster implements Serializable {
   }
 
   public Melody getMelody() {
+    song.name = getName();
     return song;
   }
 
   private void constructSong() {
-    List<Note> notes = new ArrayList<>();
-    for (SimpleNote note : genes.getMelody()) {
-      notes.add(new Note(note.pitch, note.length));
+    List<Note> motif = new ArrayList<>();
+    for (SimpleNote note : genes.getMelody()) { //fixme keep motifs separate
+      motif.add(new Note(note.pitch, note.length));
     }
+
+    List<Note> notes = new ArrayList<>();
+    for (Chord chord : genes.getChords()) { //fixme test
+      notes.addAll(new DiatonicTranspose(C4, chord.scaleTones).transform(deepClone(motif)));
+    }
+
     for (Transforms.Transform transform : genes.getTransforms()) {
       notes = transform.transform(notes);
     }
