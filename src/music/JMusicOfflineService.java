@@ -4,9 +4,8 @@ import jm.music.data.Note;
 import jm.music.data.Part;
 import jm.music.data.Phrase;
 import jm.music.data.Score;
-import jm.music.tools.Mod;
 import jm.util.Play;
-import jm.util.Write;
+import jm.util.View;
 import models.Model;
 
 import java.util.List;
@@ -30,9 +29,10 @@ public class JMusicOfflineService implements MusicService {
         score.add(new Part(makePhrase(part.notes)));
       }
     }
-//    Mod.repeat(score, 2);
+
+    score.setNumerator(3); //TODO base on creatures
     play(score);
-    Write.midi(score); // fixme make a controlled action
+    View.notate(score);
   }
 
   @Override
