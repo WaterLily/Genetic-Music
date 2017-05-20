@@ -39,7 +39,7 @@ public class WindowView implements View {
 
     window = new JFrame("Genetic Music");
     window.setLayout(new BorderLayout());
-    window.setSize(700, 400);
+    window.setSize(800, 400);
     window.setLocationRelativeTo(null);
     window.addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
@@ -51,7 +51,7 @@ public class WindowView implements View {
     //create pane for displaying creature squares
     singerPane = new SingerPane();
     singerPane.setLayout(new FlowLayout(FlowLayout.LEFT));
-    singerPane.setPreferredSize(new Dimension(350, 400));
+    singerPane.setPreferredSize(new Dimension(280, 400));
 //    singerPane.setBorder(BorderFactory.createEtchedBorder(SOFT_BLUE, GREY_BLUE));
     window.getContentPane().add(singerPane, BorderLayout.WEST);
 
@@ -135,7 +135,7 @@ public class WindowView implements View {
 
     void add(Singer singer) {
       singers.add(singer);
-      JButton button = makeButton(singer, singers.size() - 1 + "");
+      JButton button = makeButton(singer, singer.monster.getName());
       add(button);
       button.doClick();
       revalidate();
@@ -168,7 +168,7 @@ public class WindowView implements View {
     DetailsPane() {
       this.details = new JTextPane();
       JScrollPane scroll = new JScrollPane(details);
-      scroll.setPreferredSize(new Dimension(310, 400));
+      scroll.setPreferredSize(new Dimension(490, 380));
       add(scroll);
     }
     void display(Singer singer) {

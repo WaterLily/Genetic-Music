@@ -26,7 +26,9 @@ public class JMusicOfflineService implements MusicService {
     Score score = new Score();
     for (Model.Melody part : allSongs) {
       if (activeSongs.contains(part.name)) {
-        score.add(new Part(makePhrase(part.notes)));
+        Part jPart = new Part(makePhrase(part.name, part.notes));
+        jPart.setTitle(part.name);
+        score.add(jPart);
       }
     }
 
@@ -39,8 +41,10 @@ public class JMusicOfflineService implements MusicService {
   public void pause() {
   }
 
-  private Phrase makePhrase(List<Note> notes) {
-    return new Phrase(notes.toArray(new Note[notes.size()]));
+  private Phrase makePhrase(String name, List<Note> notes) {
+    Phrase phrase = new Phrase(notes.toArray(new Note[notes.size()]));
+    phrase.setTitle(name);
+    return phrase;
   }
 
   private void play(Score score) {

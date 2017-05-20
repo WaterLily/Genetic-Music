@@ -1,6 +1,7 @@
 package models;
 
 import static utils.Utils.checkNotNull;
+import static utils.Utils.deepClone;
 
 import jm.music.data.Note;
 
@@ -35,8 +36,14 @@ public class Model {
       this.name = name;
     }
 
+    @Override
     public String toString() {
       return notes.toString();
+    }
+
+    @Override
+    public Melody clone() {
+      return new Melody(name, deepClone(notes));
     }
   }
 

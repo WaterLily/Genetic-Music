@@ -42,7 +42,7 @@ public class Monster implements Serializable {
 
   public Melody getMelody() {
     song.name = getName();
-    return new Melody(song.name, deepClone(song.notes));
+    return song.clone();
   }
 
   private void constructSong() {
@@ -64,14 +64,12 @@ public class Monster implements Serializable {
   }
 
   public String getName() {
-    return song.notes.toString();
+    return hashCode() + "";
   }
 
   @Override
   public String toString() {
-    return
-//        song.notes.toString();
-    genes.getMelody().toString();
+    return genes.getChords().toString() + "\t" + genes.getMelody().toString();
   }
 
   public Gamete makeGamete() {
