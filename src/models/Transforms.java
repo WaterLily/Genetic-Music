@@ -75,7 +75,9 @@ class Transforms {
     Transpose(int semitones){
       this.semitones = semitones;
     }
-
+/*
+TODO: Clone notes (don't clown notes, that is a different thing to cloning).
+ */
     @Override
     List<Note> transform(List<Note> phrase) {
       Phrase temp = new Phrase(phrase.toArray(new Note[phrase.size()]));
@@ -175,6 +177,35 @@ class Transforms {
         @Override
         public boolean equals(Object other) {
             return other instanceof Articulation && Math.abs(this.lengthFactor - ((Articulation) other).lengthFactor) < NEIGHBORHOOD;
+        }
+    }
+    final static class FullTranspose extends Transform {
+
+
+        private final int[] sourceScale;
+        private final int tonic;
+        private final int[] targetScale;
+        private final int targetTonic;
+
+        FullTranspose(int[] sourceScale, int tonic, int[] targetScale, int targetTonic){
+
+
+            this.sourceScale = sourceScale;
+            this.tonic = tonic;
+            this.targetScale = targetScale;
+            this.targetTonic = targetTonic;
+        }
+        /*
+        TODO: Clone notes (don't clown notes, that is a different thing to cloning).
+         */
+        @Override
+        List<Note> transform(List<Note> phrase) {
+            return phrase;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return true; //fixme implement
         }
     }
 }
