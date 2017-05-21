@@ -85,8 +85,8 @@ class Transforms {
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof DiatonicTranspose
-          && ((DiatonicTranspose) other).scaleTones == this.semitones;
+      return other instanceof Transpose
+          && ((Transpose) other).semitones == this.semitones;
     }
   }
 

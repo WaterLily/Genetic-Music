@@ -1,23 +1,28 @@
 package models;
 
+import static jm.constants.Durations.EIGHTH_NOTE;
+import static jm.constants.Pitches.REST;
 import static utils.Utils.checkNotNull;
 
 import models.Model.SimpleNote;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-/** Stores the DNA of a single monster. */ //TODO: make serializable
-class Genome implements Serializable { //fixme test
-  private List<TransformChromosome> transformations;
-  private PatternChromosome melodies;
+/** Stores the DNA of a single monster. */
+class Genome implements Serializable {
+  private final PatternChromosome melodies;
+  private final ChordChromosome chords;
+  private final List<TransformChromosome> transformations;
 
   public Genome(Gamete one, Gamete two) {
     melodies = new PatternChromosome(one.melodyAlleles, two.melodyAlleles, new Random()); //fixme random
+    chords = new ChordChromosome(one.chordAlleles, two.chordAlleles, new Random());
     transformations = new ArrayList<>();
     Set<Locus> loci = new HashSet<>();
     loci.addAll(one.transformAleles.keySet());
@@ -35,6 +40,7 @@ class Genome implements Serializable { //fixme test
       builder.addAllele(transformation.locus, transformation.meiosis(random));
     }
     builder.setMelody(melodies.meiosis(random));
+    builder.setChords(chords.meiosis(random));
     return builder.build();
   }
 
@@ -50,6 +56,10 @@ class Genome implements Serializable { //fixme test
     return melodies.present();
   }
 
+  List<Chord> getChords() {
+    return chords.present();
+  }
+
   private static abstract class Chromosome<E, A> implements Serializable { //fixme decide if this polymorphism is needed
     protected final E one;
     protected final E two;
@@ -63,53 +73,126 @@ class Genome implements Serializable { //fixme test
     abstract A present();
   }
 
-  private static class PatternChromosome extends Chromosome<MelodyBase, List<SimpleNote>> {
+  private static class ChordChromosome extends Chromosome<List<Chord>, List<Chord>> {
     private final boolean swap;
 
-    PatternChromosome(MelodyBase one, MelodyBase two, Random random) {
+    ChordChromosome(List<Chord> one, List<Chord> two, Random random) {
       super(one, two);
-      swap = false; //random.nextDouble() < 0.5; //fixme
+      swap = random.nextBoolean();
     }
 
     @Override
-    MelodyBase meiosis(Random random) {
-      boolean r = random.nextDouble() < 0.5;
-      MelodyBase first = r ? one : two;
-      MelodyBase second = r ? two : one;
-      MelodyBase fakeBase = new MelodyBase(new SimpleNote(-1, 8));
-      addNotes(fakeBase, first, second, random);
-      return fakeBase.next();
+    List<Chord> meiosis(Random random) { // TODO recombination
+      return random.nextBoolean() ? one : two;
     }
 
-    private void addNotes(MelodyBase base, MelodyBase current, MelodyBase other, Random random) {
-      // TODO support differing lengths
-      if (current == null) {
-        return;
-      } else {
-        base.setNext(new MelodyBase(current.note));
+    @Override
+    List<Chord> present() { // TODO combine?
+      return swap ? one : two;
+    }
+  }
+
+  private static class PatternChromosome extends Chromosome<List<SimpleNote>, List<SimpleNote>> {
+    private final boolean swap;
+
+    PatternChromosome(List<SimpleNote> one, List<SimpleNote> two, Random random) {
+      super(one, two);
+      swap = random.nextBoolean();
+    }
+
+    @Override
+    List<SimpleNote> meiosis(Random random) { // TODO test
+      double firstLength = length(one);
+      double secondLength = length(two);
+      int numEights = numEights(swap ? firstLength : secondLength);
+      int[] firstPitches = pitches(one, numEights);
+      int[] secondPitches = pitches(two, numEights);
+      System.out.println(numEights);
+      System.out.println(firstPitches[0]);
+      List<SimpleNote> childNotes = new ArrayList<>();
+      List<Integer> breakPointers = mergedBreakPoints(one, two, random);
+      if (!breakPointers.contains(numEights)) {
+        breakPointers.add(numEights);
       }
-      boolean cross = random.nextDouble() < getCrossoverChance(current, other);
-      MelodyBase first = cross ? other : current;
-      MelodyBase second = cross ? current : other;
-      addNotes(base.next(), first.next(), second.next(), random);
+      System.out.println(breakPointers);
+      for (int i = 0; i < breakPointers.size() - 1; i++) {
+        List<Integer> pitchChoices = new ArrayList<>();
+        for (int j = breakPointers.get(i); j < breakPointers.get(i+1); j++) {
+          pitchChoices.add(firstPitches[j]);
+          pitchChoices.add(secondPitches[j]);
+        }
+        childNotes.add(
+            new SimpleNote(
+                pitchChoices.get(random.nextInt(pitchChoices.size())),
+                (breakPointers.get(i+1) - breakPointers.get(i)) * EIGHTH_NOTE));
+      }
+      System.out.println(childNotes);
+      return childNotes;
     }
 
-    private double getCrossoverChance(MelodyBase one, MelodyBase two) {
-      return 0.25;
+    private List<Integer> mergedBreakPoints(
+        List<SimpleNote> notes1, List<SimpleNote> notes2, Random random) {
+      Set<Integer> breaks1 = breakPoints(notes1);
+      Set<Integer> breaks2 = breakPoints(notes2);
+      List<Integer> finalBreaks = new ArrayList<>();
+      for (int point : breaks1) {
+        if (breaks2.contains(point) || random.nextBoolean()) {
+          finalBreaks.add(point);
+        }
+      }
+      for (int point : breaks2) {
+        if (!breaks1.contains(point) && random.nextBoolean()) {
+          finalBreaks.add(point);
+        }
+      }
+      Collections.sort(finalBreaks);
+      return finalBreaks;
+    }
+
+    private Set<Integer> breakPoints(List<SimpleNote> notes) {
+      Set<Integer> breaks = new HashSet<>();
+      breaks.add(0);
+      int progress = 0;
+      for (SimpleNote note : notes) {
+        progress += numEights(note.length);
+        breaks.add(progress);
+      }
+      return breaks;
+    }
+
+    private int[] pitches(List<SimpleNote> notes, int arrayLength) {
+      int[] array = new int[arrayLength];
+      int progress = 0;
+      for (SimpleNote note : notes) {
+        int bound = progress + numEights(note.length);
+        for (; progress < bound; progress++) {
+          array[progress] = note.pitch;
+        }
+      }
+      for (int i = progress; i < array.length; i++) {
+        array[i] = REST;
+      }
+      return array;
+    }
+
+    private int numEights(double length) {
+      return (int) ((length + 0.01) / EIGHTH_NOTE);
     }
 
     @Override
     List<SimpleNote> present() {
       List<SimpleNote> notes = new ArrayList<>();
-      MelodyBase first = swap ? two : one;
-      MelodyBase second = swap ? one : two;
-      for (MelodyBase base = first; base != null; base = base.next()) {
-        notes.add(base.note);
-      }
-      for (MelodyBase base = second; base != null; base = base.next()) {
-        notes.add(base.note);
-      }
+      notes.addAll(swap ? two : one);
+      notes.addAll(swap ? one : two);
       return notes;
+    }
+
+    private double length(List<SimpleNote> notes) {
+      double total = 0;
+      for (SimpleNote note : notes) {
+        total += note.length;
+      }
+      return total;
     }
   }
 
@@ -129,32 +212,6 @@ class Genome implements Serializable { //fixme test
     @Override
     Transforms.Transform present() {
       return locus.getExpression(one, two);
-    }
-  }
-
-  static class MelodyBase implements Serializable { // TODO try to deprecate
-    final SimpleNote note;
-    private MelodyBase next;
-
-    MelodyBase(SimpleNote note) {
-      this.note = note;
-    }
-
-    MelodyBase setNext(MelodyBase next) {
-      this.next = next;
-      return this;
-    }
-
-    MelodyBase next() {
-      return next;
-    }
-
-    public String toString() {
-      String result = note.toString();
-      if (next != null) {
-        result += " " + next.toString();
-      }
-      return result;
     }
   }
 
