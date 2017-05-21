@@ -26,7 +26,7 @@ class Transforms {
     }
   }
 
-  static class Identity extends Transform {
+  final static class Identity extends Transform {
     @Override
     List<Note> transform(List<Note> phrase) {
       return new ArrayList<>(phrase);
@@ -38,7 +38,7 @@ class Transforms {
     }
   }
 
-  static class DiatonicTranspose extends Transform {
+  final static class DiatonicTranspose extends Transform {
     private final int startKey;
     private final int scaleTones;
 
@@ -69,7 +69,7 @@ class Transforms {
     }
   }
 
-  static class Transpose extends Transform {
+  final static class Transpose extends Transform {
     private final int semitones;
 
     Transpose(int semitones){
@@ -90,7 +90,7 @@ class Transforms {
     }
   }
 
-  static class Shift extends Transform {
+ final static class Shift extends Transform {
     private final double shift;
     private final boolean right;
 
@@ -157,4 +157,24 @@ class Transforms {
     }
     return length;
   }
+
+    public static class Articulation extends Transform {
+      private final double lengthFactor;
+      private final static double NEIGHBORHOOD = 0.01;
+        public Articulation(double d) {
+            this.lengthFactor = d;
+        }
+
+        @Override
+        List<Note> transform(List<Note> phrase) {
+            Phrase temp = new Phrase(phrase.toArray(new Note[phrase.size()]));
+
+            return null;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Articulation && Math.abs(this.lengthFactor - ((Articulation) other).lengthFactor) < NEIGHBORHOOD;
+        }
+    }
 }
