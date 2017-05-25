@@ -3,7 +3,9 @@ package models;
 import static jm.constants.Durations.EIGHTH_NOTE;
 import static jm.constants.Pitches.REST;
 import static utils.Utils.checkNotNull;
+import static utils.Utils.zip;
 
+import javafx.util.Pair;
 import models.Model.SimpleNote;
 
 import java.io.Serializable;
@@ -19,18 +21,26 @@ class Genome implements Serializable {
   private final PatternChromosome melodies;
   private final ChordChromosome chords;
   private final List<TransformChromosome> transformations;
+  private final List<TransformChromosome> variations;
 
   public Genome(Gamete one, Gamete two) {
     melodies = new PatternChromosome(one.melodyAlleles, two.melodyAlleles, new Random()); //fixme random
     chords = new ChordChromosome(one.chordAlleles, two.chordAlleles, new Random());
     transformations = new ArrayList<>();
     Set<Locus> loci = new HashSet<>();
-    loci.addAll(one.transformAleles.keySet());
-    loci.addAll(two.transformAleles.keySet());
+    loci.addAll(one.transformAlleles.keySet());
+    loci.addAll(two.transformAlleles.keySet());
     for (Locus locus : loci) { //TODO gracefully handle null alleles
       transformations.add(
           new TransformChromosome(
-              locus, one.transformAleles.get(locus), two.transformAleles.get(locus)));
+              locus, one.transformAlleles.get(locus), two.transformAlleles.get(locus)));
+    }
+    variations = new ArrayList<>();
+    for (Pair<Allele, Allele> alleles :
+        zip(one.variationAlleles, two.variationAlleles, Allele.DEFAULT, Allele.DEFAULT)) {
+      variations.add(
+          new TransformChromosome(
+              Locus.VARIATION, alleles.getKey(), alleles.getValue()));
     }
   }
 
@@ -44,20 +54,28 @@ class Genome implements Serializable {
     return builder.build();
   }
 
-  List<Transforms.Transform> getTransforms() {
-    List<Transforms.Transform> transforms = new ArrayList<>();
-    for (TransformChromosome gene : transformations) {
-      transforms.add(gene.present());
-    }
-    return transforms;
-  }
-
   List<SimpleNote> getMelody() {
     return melodies.present();
   }
 
   List<Chord> getChords() {
     return chords.present();
+  }
+
+  List<Transforms.Transform> getTransforms() {
+    return presentList(transformations);
+  }
+
+  List<Transforms.Transform> getVariations() {
+    return presentList(variations);
+  }
+
+  private List<Transforms.Transform> presentList(List<TransformChromosome> genes) {
+    List<Transforms.Transform> transforms = new ArrayList<>();
+    for (TransformChromosome gene : genes) {
+      transforms.add(gene.present());
+    }
+    return transforms;
   }
 
   private static abstract class Chromosome<E, A> implements Serializable { //fixme decide if this polymorphism is needed

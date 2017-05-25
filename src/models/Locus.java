@@ -61,6 +61,12 @@ enum Locus {
     Transforms.Transform getExpression(Allele a1, Allele a2) {
       throw new UnsupportedOperationException();
     }
+  },
+  VARIATION {
+    @Override
+    Transforms.Transform getExpression(Allele a1, Allele a2) {
+      throw new UnsupportedOperationException();
+    }
   };
 
   /** Calculates how a gene will be expressed based on the given alleles. */

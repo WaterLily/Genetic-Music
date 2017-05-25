@@ -18,17 +18,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
-/** Models a haploid monster cell. */
+/**
+ * Models a haploid monster cell.
+ */
 public class Gamete {
-  final Map<Locus, Allele> transformAleles;
+  final Map<Locus, Allele> transformAlleles;
   final List<SimpleNote> melodyAlleles;
   final List<Chord> chordAlleles;
+  final List<Allele> variationAlleles;
 
-  private Gamete(Map<Locus, Allele> transformAleles, List<SimpleNote> melodyAlleles, List<Chord> chordAlleles) {
-    this.transformAleles = transformAleles;
+  private Gamete(
+      Map<Locus, Allele> transformAlleles,
+      List<SimpleNote> melodyAlleles,
+      List<Chord> chordAlleles,
+      List<Allele> variationAlleles) {
+    this.transformAlleles = transformAlleles;
     this.melodyAlleles = melodyAlleles;
     this.chordAlleles = chordAlleles;
+    this.variationAlleles = variationAlleles;
   }
 
   static Builder builder() {
@@ -39,6 +48,7 @@ public class Gamete {
     private Map<Locus, Allele> transformAlleles;
     private List<SimpleNote> melodyAlleles;
     private List<Chord> chordAlleles;
+    private List<Allele> variationAlleles;
 
     Builder setMelody(List<SimpleNote> melodyAlleles) {
       this.melodyAlleles = checkNotNull(melodyAlleles);
@@ -50,7 +60,7 @@ public class Gamete {
       return this;
     }
 
-    public Builder setChords(List<Chord> chordAlleles) {
+    Builder setChords(List<Chord> chordAlleles) {
       this.chordAlleles = checkNotNull(chordAlleles);
       return this;
     }
@@ -65,6 +75,11 @@ public class Gamete {
       return this;
     }
 
+    Builder setVariationAlleles(List<Allele> variationAlleles) {
+      this.variationAlleles = checkNotNull(variationAlleles);
+      return this;
+    }
+
     Gamete build() {
       if (melodyAlleles == null) {
         throw new IllegalStateException("Missing required field: melody");
@@ -72,7 +87,11 @@ public class Gamete {
       if (chordAlleles == null) {
         throw new IllegalStateException("Missing required field: chords");
       }
-      return new Gamete(transformAlleles, melodyAlleles, chordAlleles);
+      if (variationAlleles == null) {
+        // TODO consider setting a default
+        throw new IllegalStateException("Missing required field: variations");
+      }
+      return new Gamete(transformAlleles, melodyAlleles, chordAlleles, variationAlleles);
     }
 
     private Builder() {
@@ -82,23 +101,40 @@ public class Gamete {
 
   public static Gamete generate(Random random) { // TODO make more flexible
     Builder builder = builder();
+
     int measures = 1;
     int beatsPerMeasure = 3;
-
     List<SimpleNote> notes = new ArrayList<>();
-
     for (int i = 0; i < measures; i++) {
       notes.addAll(randomMeasure(beatsPerMeasure, random));
     }
 
-    builder.setMelody(notes);
-    builder.setChords(
-        Chord.Progressions.values()[random.nextInt(Chord.Progressions.values().length)].chords);
-//    builder.addAllele(
-//        Locus.TIME_OFFSET,
-//        new Allele.DoubleAllele(random.nextDouble() < 0.5 ? -SIXTEENTH_NOTE : 0));
+    Chord[] chords = Chord.Progressions.values()[random.nextInt(Chord.Progressions.values().length)].chords;
 
-    return builder.build();
+    List<Allele> variations = new ArrayList<>();
+    for (int i = 0; i < chords.length; i++) {
+      switch(random.nextInt(4)) {
+        case 0:
+          variations.add(Allele.REVERSE_PITCHES);
+          break;
+        case 1:
+          variations.add(Allele.REVERSE_RHYTHM);
+          break;
+        case 2:
+          variations.add(new Allele.IntAllele(random.nextInt(7) + 1));
+          break;
+        case 3:
+          // fall through
+        default:
+          variations.add(Allele.DEFAULT);
+      }
+    }
+
+    return builder
+        .setMelody(notes)
+        .setChords(chords)
+        .setVariationAlleles(variations)
+        .build();
   }
 
   private static int getRandomPitch(Random random) {
@@ -106,10 +142,7 @@ public class Gamete {
     pitchOptions[0] = Pitches.REST;
     int offset = 1;
     for (int i = 0; i < pitchOptions.length - offset; i++) {
-      pitchOptions[i + offset] =
-          Scales.MAJOR_SCALE[i % Scales.MAJOR_SCALE.length]
-              + Pitches.C4
-              + ((i/Scales.MAJOR_SCALE.length) * TONES_IN_SCALE);
+      pitchOptions[i + offset] = Scales.MAJOR_SCALE[i % Scales.MAJOR_SCALE.length] + Pitches.C4 + ((i / Scales.MAJOR_SCALE.length) * TONES_IN_SCALE);
     }
     return pitchOptions[random.nextInt(pitchOptions.length)];
   }
@@ -134,8 +167,7 @@ public class Gamete {
   }
 
   private enum NoteChoice {
-    TWO_EIGHTHS(2, EIGHTH_NOTE), QUARTER(1, QUARTER_NOTE), HALF(1, HALF_NOTE),
-    THREE_QUARTER(1, DOTTED_HALF_NOTE), WHOLE(1, WHOLE_NOTE);
+    TWO_EIGHTHS(2, EIGHTH_NOTE), QUARTER(1, QUARTER_NOTE), HALF(1, HALF_NOTE), THREE_QUARTER(1, DOTTED_HALF_NOTE), WHOLE(1, WHOLE_NOTE);
 
     private final int count;
     private final double length;

@@ -57,7 +57,7 @@ public class MonsterTest {
         monster
             .setRandom(constructRandom(1.0))
             .makeGamete()
-            .transformAleles
+            .transformAlleles
             .get(Locus.TIME_OFFSET));
   }
 

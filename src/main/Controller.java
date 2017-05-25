@@ -80,6 +80,4 @@ public class Controller {
     System.out.println("de-activating " + singer.getName());
     musicService.removePart(singer.getMelody());
   }
-
-//  public
 }

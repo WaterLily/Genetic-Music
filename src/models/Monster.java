@@ -11,7 +11,9 @@ import static jm.constants.Durations.WHOLE_NOTE;
 import static jm.constants.Pitches.C4;
 import static utils.Utils.checkNotNull;
 import static utils.Utils.deepClone;
+import static utils.Utils.zip;
 
+import javafx.util.Pair;
 import jm.music.data.Note;
 import models.Model.Melody;
 import models.Model.SimpleNote;
@@ -45,15 +47,19 @@ public class Monster implements Serializable {
     return song.clone();
   }
 
-  private void constructSong() {
+  private void constructSong() { //fixme test
     List<Note> motif = new ArrayList<>();
     for (SimpleNote note : genes.getMelody()) { //fixme keep motifs separate
       motif.add(new Note(note.pitch, note.length));
     }
 
     List<Note> notes = new ArrayList<>();
-    for (Chord chord : genes.getChords()) { //fixme test
-      notes.addAll(new DiatonicTranspose(C4, chord.scaleTones).transform(deepClone(motif)));
+    for (Pair<Chord, Transforms.Transform> measureChanges : zip(genes.getChords(), genes.getVariations(), Chord.I, new Transforms.Identity())) {
+      Chord chord = measureChanges.getKey();
+      Transforms.Transform variation = measureChanges.getValue();
+      List<Note> measure = new DiatonicTranspose(C4, chord.scaleTones).transform(deepClone(motif)); //fixme use a locus?
+      measure = variation.transform(measure);
+      notes.addAll(measure);
     }
 
     for (Transforms.Transform transform : genes.getTransforms()) {
