@@ -37,7 +37,11 @@ enum Locus {
   ARTICULATION {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
-      throw new UnsupportedOperationException();
+    if (a1 instanceof Allele.DoubleAllele && a2 instanceof Allele.DoubleAllele){
+      return new Transforms.Articulation(.5*(((Allele.DoubleAllele) a1).d+((Allele.DoubleAllele) a2).d));
+    }
+    throw new IllegalArgumentException();
+
     }
   },
   MULTIPLICATION {

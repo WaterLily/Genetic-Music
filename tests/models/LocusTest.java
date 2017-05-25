@@ -1,14 +1,15 @@
 package models;
 
-import static junit.framework.TestCase.assertEquals;
-import static models.Constants.KEY_C;
-import static models.Constants.RELATIVE_MINOR_SCALE_OFFSET;
-import static models.Locus.MODE;
-import static models.Locus.TIME_OFFSET;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static junit.framework.TestCase.assertEquals;
+import static models.Constants.KEY_C;
+import static models.Constants.RELATIVE_MINOR_SCALE_OFFSET;
+import static models.Locus.ARTICULATION;
+import static models.Locus.MODE;
+import static models.Locus.TIME_OFFSET;
 
 /** Unit tests for {@link Locus}. */
 @RunWith(JUnit4.class)
@@ -43,6 +44,20 @@ public class LocusTest {
     testExpression(TIME_OFFSET, x, y, IDENTITY);
   }
 
+  @Test
+  public void testArticulation() {
+    Allele.DoubleAllele x = new Allele.DoubleAllele(2);
+    Allele.DoubleAllele y = new Allele.DoubleAllele(-4);
+    Allele.DoubleAllele z = new Allele.DoubleAllele(0);
+    Allele.DoubleAllele t = new Allele.DoubleAllele(4);
+    Allele.DoubleAllele s = new Allele.DoubleAllele(-5);
+
+    testExpression(ARTICULATION, x, y, new Transforms.Articulation(-1));
+    testExpression(ARTICULATION, x, t, new Transforms.Articulation(3));
+    testExpression(ARTICULATION, y, s, new Transforms.Articulation(-4.5));
+    testExpression(ARTICULATION, z, t, new Transforms.Articulation(2));
+
+  }
   private static void testExpression(
       Locus locus, Allele allele1, Allele allele2, Transforms.Transform expected) {
     assertEquals(locus.getExpression(allele1, allele2), expected);

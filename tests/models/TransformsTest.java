@@ -1,16 +1,11 @@
 package models;
 
 import static jm.constants.Durations.SIXTEENTH_NOTE;
-import static jm.constants.Pitches.A4;
-import static jm.constants.Pitches.C4;
-import static jm.constants.Pitches.C5;
-import static jm.constants.Pitches.CS5;
-import static jm.constants.Pitches.E4;
-import static jm.constants.Pitches.E5;
-import static jm.constants.Pitches.G4;
+import static jm.constants.Pitches.*;
 import static junit.framework.TestCase.assertEquals;
 import static models.Constants.RELATIVE_MINOR_SCALE_OFFSET;
 
+import jm.constants.Scales;
 import jm.music.data.Note;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,5 +58,16 @@ public class TransformsTest {
       result += note.toString() + "\n";
     }
     return result;
+  }
+  @Test
+  public void testFullTranspose(){
+    List<Note> CMajor = Arrays.asList(new Note(C4, 1), new Note(E4, 1), new Note(G4, 1));
+    List<Note> CMinor = Arrays.asList(new Note(C4, 1), new Note(EF4, 1), new Note(G4, 1));
+    List<Note> FSMajor = Arrays.asList(new Note(FS4, 1), new Note(AS4, 1), new Note(CS4, 1));
+
+    assertListEquals(CMinor, new Transforms.FullTranspose(Scales.MAJOR_SCALE, C4,Scales.MINOR_SCALE, C4 ).transform(CMajor));
+    assertListEquals(FSMajor, new Transforms.FullTranspose(Scales.MAJOR_SCALE, C4, Scales.MAJOR_SCALE,FS4).transform(CMajor));
+    assertListEquals(FSMajor, new Transforms.FullTranspose(Scales.MINOR_SCALE, C4, Scales.MAJOR_SCALE,FS4).transform(CMinor));
+    // fixme also test rests
   }
 }
