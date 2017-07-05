@@ -49,6 +49,11 @@ class Genome implements Serializable {
     for (TransformChromosome transformation : transformations) {
       builder.addAllele(transformation.locus, transformation.meiosis(random));
     }
+    List<Allele> newVariations = new ArrayList<>();
+    for (TransformChromosome variation : variations) {
+      newVariations.add(variation.meiosis(random));
+    }
+    builder.setVariationAlleles(newVariations);
     builder.setMelody(melodies.meiosis(random));
     builder.setChords(chords.meiosis(random));
     return builder.build();

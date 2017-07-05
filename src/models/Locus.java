@@ -1,7 +1,13 @@
 package models;
 
+import static models.Allele.DEFAULT;
+import static models.Allele.REVERSE_PITCHES;
+import static models.Allele.REVERSE_RHYTHM;
 import static models.Constants.KEY_C;
 import static models.Constants.RELATIVE_MINOR_SCALE_OFFSET;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /** Models a locus in a genome for the purpose of transformational genes. */
 enum Locus {
@@ -65,7 +71,20 @@ enum Locus {
   VARIATION {
     @Override
     Transforms.Transform getExpression(Allele a1, Allele a2) {
-      throw new UnsupportedOperationException();
+      checkValidAlleleType(a1);
+      checkValidAlleleType(a2);
+      Set<Allele> alleles = new HashSet<>();
+      alleles.add(a1);
+      alleles.add(a2);
+      //fixme do cycling
+      return new Transforms.Reverse(
+          alleles.contains(REVERSE_RHYTHM), alleles.contains(REVERSE_PITCHES));
+    }
+
+    void checkValidAlleleType(Allele a) {
+      if (!(a == DEFAULT || a == REVERSE_PITCHES || a ==  REVERSE_RHYTHM || a instanceof Allele.IntAllele)) {
+        throw new IllegalArgumentException();
+      }
     }
   };
 

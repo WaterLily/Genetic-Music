@@ -43,6 +43,7 @@ public class Monster implements Serializable {
   }
 
   public Melody getMelody() {
+    constructSong();
     song.name = getName();
     return song.clone();
   }
@@ -57,6 +58,7 @@ public class Monster implements Serializable {
     for (Pair<Chord, Transforms.Transform> measureChanges : zip(genes.getChords(), genes.getVariations(), Chord.I, new Transforms.Identity())) {
       Chord chord = measureChanges.getKey();
       Transforms.Transform variation = measureChanges.getValue();
+      System.out.println(variation);
       List<Note> measure = new DiatonicTranspose(C4, chord.scaleTones).transform(deepClone(motif)); //fixme use a locus?
       measure = variation.transform(measure);
       notes.addAll(measure);

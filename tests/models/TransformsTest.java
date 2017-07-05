@@ -48,6 +48,21 @@ public class TransformsTest {
     assertListEquals(rightExpected, new Transforms.Shift(2 * SIXTEENTH_NOTE).transform(original));
   }
 
+  @Test
+  public void testReverse() {
+    List<Note> original = Arrays.asList(new Note(C4, 1), new Note(E4, 0.5), new Note(G4, 2));
+    List<Note> rhythm =
+        Arrays.asList(new Note(C4, 2), new Note(E4, 0.5), new Note(G4, 1));
+    List<Note> pitch =
+        Arrays.asList(new Note(G4, 1), new Note(E4, 0.5), new Note(C4, 2));
+    List<Note> both =
+        Arrays.asList(new Note(G4, 2), new Note(E4, 0.5), new Note(C4, 1));
+
+    assertListEquals(rhythm, new Transforms.Reverse(true, false).transform(original));
+    assertListEquals(pitch, new Transforms.Reverse(false, true).transform(original));
+    assertListEquals(both, new Transforms.Reverse(true, true).transform(original));
+  }
+
   private void assertListEquals(List<Note> expected, List<Note> actual) {
     assertEquals(listToString(expected), listToString(actual));
   }

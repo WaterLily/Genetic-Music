@@ -42,7 +42,7 @@ class Transforms {
     private final int startKey;
     private final int scaleTones;
 
-    DiatonicTranspose(int startKey, int scaleTones){
+    DiatonicTranspose(int startKey, int scaleTones) {
       this.startKey = startKey;
       this.scaleTones = scaleTones;
     }
@@ -72,12 +72,13 @@ class Transforms {
   final static class Transpose extends Transform {
     private final int semitones;
 
-    Transpose(int semitones){
+    Transpose(int semitones) {
       this.semitones = semitones;
     }
-/*
-TODO: Clone notes (don't clown notes, that is a different thing to cloning).
- */
+
+    /*
+    TODO: Clone notes (don't clown notes, that is a different thing to cloning).
+     */
     @Override
     List<Note> transform(List<Note> phrase) {
       Phrase temp = new Phrase(phrase.toArray(new Note[phrase.size()]));
@@ -87,12 +88,11 @@ TODO: Clone notes (don't clown notes, that is a different thing to cloning).
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof Transpose
-          && ((Transpose) other).semitones == this.semitones;
+      return other instanceof Transpose && ((Transpose) other).semitones == this.semitones;
     }
   }
 
- final static class Shift extends Transform {
+  final static class Shift extends Transform {
     private final double shift;
     private final boolean right;
 
@@ -109,13 +109,13 @@ TODO: Clone notes (don't clown notes, that is a different thing to cloning).
     List<Note> transform(List<Note> input) {
       List<Note> result = new ArrayList<>(input);
       double cutLength = 0;
-      while(cutLength < shift) {
+      while (cutLength < shift) {
         cutLength += getFromSource(result).getRhythmValue();
         addToDest(result, removeFromSource(result));
       }
       double overShoot = cutLength - shift;
       if (overShoot > 0) { // Put part of the last moved note back where it came from
-        Note split =  removeFromDest(result);
+        Note split = removeFromDest(result);
         Note forDest = new Note(split.getPitch(), split.getRhythmValue() - overShoot);
         addToDest(result, forDest);
         Note forSource = new Note(split.getPitch(), overShoot);
@@ -147,8 +147,88 @@ TODO: Clone notes (don't clown notes, that is a different thing to cloning).
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof Shift
-          && ((Shift) other).shift == this.shift;
+      return other instanceof Shift && ((Shift) other).shift == this.shift;
+    }
+  }
+
+  public static class Articulation extends Transform {
+    private final double lengthFactor;
+    private final static double NEIGHBORHOOD = 0.01;
+
+    public Articulation(double d) {
+      this.lengthFactor = d;
+    }
+
+    @Override
+    List<Note> transform(List<Note> phrase) {
+      Phrase temp = new Phrase(phrase.toArray(new Note[phrase.size()]));
+
+      return null;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof Articulation && Math.abs(this.lengthFactor - ((Articulation) other).lengthFactor) < NEIGHBORHOOD;
+    }
+  }
+
+  final static class FullTranspose extends Transform {
+    private final int[] sourceScale;
+    private final int tonic;
+    private final int[] targetScale;
+    private final int targetTonic;
+
+    FullTranspose(int[] sourceScale, int tonic, int[] targetScale, int targetTonic) {
+      this.sourceScale = sourceScale;
+      this.tonic = tonic;
+      this.targetScale = targetScale;
+      this.targetTonic = targetTonic;
+    }
+
+    /*
+    TODO: Clone notes (don't clown notes, that is a different thing to cloning).
+     */
+    @Override
+    List<Note> transform(List<Note> phrase) {
+      return phrase;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return true; //fixme implement
+    }
+  }
+
+  final static class Reverse extends Transform {
+    private final boolean rhythms;
+    private final boolean pitches;
+
+    public Reverse(boolean rhythms, boolean pitches) {
+      this.rhythms = rhythms;
+      this.pitches = pitches;
+    }
+
+    @Override
+    List<Note> transform(List<Note> phrase) {
+      List<Note> backwards = new ArrayList<>();
+      for (Note note : phrase) {
+        backwards.add(0, note.copy());
+      }
+      for (int i = 0; i < backwards.size(); i++) {
+        // Swap 'em back
+        if (!rhythms) {
+          backwards.get(i).setRhythmValue(phrase.get(i).getRhythmValue(), true);
+        }
+        if (!pitches) {
+          backwards.get(i).setPitch(phrase.get(i).getPitch());
+        }
+      }
+      return backwards;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      throw new UnsupportedOperationException();
     }
   }
 
@@ -159,53 +239,4 @@ TODO: Clone notes (don't clown notes, that is a different thing to cloning).
     }
     return length;
   }
-
-    public static class Articulation extends Transform {
-      private final double lengthFactor;
-      private final static double NEIGHBORHOOD = 0.01;
-        public Articulation(double d) {
-            this.lengthFactor = d;
-        }
-
-        @Override
-        List<Note> transform(List<Note> phrase) {
-            Phrase temp = new Phrase(phrase.toArray(new Note[phrase.size()]));
-
-            return null;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return other instanceof Articulation && Math.abs(this.lengthFactor - ((Articulation) other).lengthFactor) < NEIGHBORHOOD;
-        }
-    }
-    final static class FullTranspose extends Transform {
-
-
-        private final int[] sourceScale;
-        private final int tonic;
-        private final int[] targetScale;
-        private final int targetTonic;
-
-        FullTranspose(int[] sourceScale, int tonic, int[] targetScale, int targetTonic){
-
-
-            this.sourceScale = sourceScale;
-            this.tonic = tonic;
-            this.targetScale = targetScale;
-            this.targetTonic = targetTonic;
-        }
-        /*
-        TODO: Clone notes (don't clown notes, that is a different thing to cloning).
-         */
-        @Override
-        List<Note> transform(List<Note> phrase) {
-            return phrase;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return true; //fixme implement
-        }
-    }
 }
